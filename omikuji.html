@@ -234,7 +234,16 @@
     .fortune-kichi    { color: #4361ee; }
     .fortune-suekichi { color: #ff9f1c; }
     .fortune-kyo      { color: #9b5de5; }
-    .fortune-zettaikyo { color: #1a0a2e; text-shadow: 0 0 12px rgba(100, 0, 0, 0.6); }
+    .fortune-zettaikyo {
+      color: #2b0938;
+      text-shadow: 0 0 20px rgba(180, 0, 80, 0.8), 0 0 40px rgba(0, 0, 0, 0.9);
+      animation: ominousVibe 0.2s infinite alternate ease-in-out;
+    }
+
+    @keyframes ominousVibe {
+      0% { transform: scale(1) translate(-1px, -1px); }
+      100% { transform: scale(1.04) translate(1px, 1px); }
+    }
 
     .result-message {
       font-size: 1.05rem;
@@ -463,22 +472,90 @@
       osc.stop(audioCtx.currentTime + 0.1);
     }
 
-    function playResultSound(isDaikichi) {
+    function playResultSound(fortune) {
       if (!soundEnabled) return;
       initAudio();
-      const notes = isDaikichi ? [523.25, 659.25, 783.99, 1046.50] : [523.25, 659.25, 783.99];
-      notes.forEach((freq, i) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime + i * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.1 + 0.35);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(audioCtx.currentTime + i * 0.1);
-        osc.stop(audioCtx.currentTime + i * 0.1 + 0.35);
-      });
+      const now = audioCtx.currentTime;
+
+      if (fortune === "絶凶") {
+        // --- 不吉な恐怖・不協和音サウンド（悪魔の音程：トリトーン ＆ 不気味な下降低音） ---
+        // 1. 低音の不気味なドローン
+        const bassOsc = audioCtx.createOscillator();
+        const bassGain = audioCtx.createGain();
+        bassOsc.type = "sawtooth";
+        bassOsc.frequency.setValueAtTime(110, now); // A2
+        bassOsc.frequency.exponentialRampToValueAtTime(55, now + 1.2); // A1へ下降
+        bassGain.gain.setValueAtTime(0.25, now);
+        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+        bassOsc.connect(bassGain);
+        bassGain.connect(audioCtx.destination);
+        bassOsc.start(now);
+        bassOsc.stop(now + 1.2);
+
+        // 2. 不協和音（トリトーン：減5度 C3 & F#3）
+        const dissonantNotes = [130.81, 185.00, 246.94]; // C3, F#3, B3
+        dissonantNotes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+          osc.frequency.exponentialRampToValueAtTime(freq * 0.75, now + idx * 0.12 + 0.8);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.9);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.12);
+          osc.stop(now + idx * 0.12 + 0.9);
+        });
+
+      } else if (fortune === "大吉") {
+        // 大吉ファンファーレ
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.1);
+          gain.gain.setValueAtTime(0.15, now + i * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.35);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + i * 0.1);
+          osc.stop(now + i * 0.1 + 0.35);
+        });
+
+      } else if (fortune === "凶") {
+        // 凶：しょんぼり下降音
+        const sadNotes = [392.00, 349.23, 311.13];
+        sadNotes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + i * 0.12);
+          gain.gain.setValueAtTime(0.12, now + i * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + i * 0.12);
+          osc.stop(now + i * 0.12 + 0.3);
+        });
+
+      } else {
+        // 通常（中吉・小吉・吉・末吉）：爽やかなポロロン
+        const notes = [523.25, 659.25, 783.99];
+        notes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.1);
+          gain.gain.setValueAtTime(0.12, now + i * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.35);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + i * 0.1);
+          osc.stop(now + i * 0.1 + 0.35);
+        });
+      }
     }
 
     soundToggle.addEventListener("click", () => {
@@ -514,7 +591,9 @@
 
         resultContainer.style.display = "block";
 
-        playResultSound(selected.fortune === "大吉");
+        // 効果音の再生
+        playResultSound(selected.fortune);
+
         if (selected.fortune === "大吉" || selected.fortune === "中吉") {
           launchConfetti();
         }
