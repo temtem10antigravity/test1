@@ -62,7 +62,7 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 780px;
+      max-width: 820px;
       background: var(--card-bg);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -99,23 +99,23 @@
       margin-bottom: 32px;
     }
 
-    /* ゲーム選択カードグリッド */
+    /* ゲーム選択カードグリッド（2x2） */
     .game-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
     }
 
-    @media (min-width: 680px) {
+    @media (min-width: 580px) {
       .game-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr 1fr;
       }
     }
 
     .game-card {
       background: #ffffff;
       border-radius: 28px;
-      padding: 24px 18px;
+      padding: 24px 20px;
       text-decoration: none;
       color: inherit;
       display: flex;
@@ -126,6 +126,15 @@
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
       overflow: hidden;
+    }
+
+    .game-card-sprunki {
+      border-color: #d8b4fe;
+    }
+    .game-card-sprunki:hover {
+      border-color: #9333ea;
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 16px 35px rgba(147, 51, 234, 0.3);
     }
 
     .game-card-omikuji {
@@ -167,6 +176,10 @@
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
+    .game-card-sprunki .game-icon-box {
+      background: linear-gradient(135deg, #f3e8ff 0%, #d8b4fe 100%);
+    }
+
     .game-card-omikuji .game-icon-box {
       background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 100%);
     }
@@ -190,7 +203,7 @@
     }
 
     .game-desc {
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       color: var(--text-muted);
       line-height: 1.5;
       margin-bottom: 16px;
@@ -208,6 +221,12 @@
       align-items: center;
       gap: 6px;
       transition: all 0.2s;
+    }
+
+    .game-card-sprunki .play-btn {
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      color: #fff;
+      box-shadow: 0 6px 15px rgba(147, 51, 234, 0.3);
     }
 
     .game-card-omikuji .play-btn {
@@ -247,13 +266,24 @@
     <p class="subtitle">遊びたいゲームをタップして選んでね！✨</p>
 
     <div class="game-grid">
-      <!-- おみくじゲームカード -->
-      <a href="omikuji.html" class="game-card game-card-omikuji">
-        <div class="game-icon-box">🌸</div>
-        <h2 class="game-title">パステルおみくじ</h2>
-        <p class="game-desc">今日の運勢やラッキーアイテムを占おう！大吉が出たらラッキー🎉</p>
+      <!-- スプランキービートメーカーカード -->
+      <a href="sprunki.html" class="game-card game-card-sprunki">
+        <div class="game-icon-box">🎧</div>
+        <h2 class="game-title">スプランキー・ビート</h2>
+        <p class="game-desc">絵と音をアップロードして自作OC作成！7人編成の音楽ミキシング🎵</p>
         <div class="play-btn">
-          <span>占ってみる</span>
+          <span>演奏する</span>
+          <span>➔</span>
+        </div>
+      </a>
+
+      <!-- 吾輩は猫であるゲームブックカード -->
+      <a href="neko.html" class="game-card game-card-neko">
+        <div class="game-icon-box">🐾</div>
+        <h2 class="game-title">吾輩は猫である</h2>
+        <p class="game-desc">名無しの猫になって日常を冒険！全5種類の結末を見つけよう📖</p>
+        <div class="play-btn">
+          <span>冒険を始める</span>
           <span>➔</span>
         </div>
       </a>
@@ -269,13 +299,13 @@
         </div>
       </a>
 
-      <!-- 吾輩は猫であるゲームブックカード -->
-      <a href="neko.html" class="game-card game-card-neko">
-        <div class="game-icon-box">🐾</div>
-        <h2 class="game-title">吾輩は猫である</h2>
-        <p class="game-desc">名無しの猫になって日常を冒険！全5種類の結末を見つけよう📖</p>
+      <!-- おみくじゲームカード -->
+      <a href="omikuji.html" class="game-card game-card-omikuji">
+        <div class="game-icon-box">🌸</div>
+        <h2 class="game-title">パステルおみくじ</h2>
+        <p class="game-desc">今日の運勢やラッキーアイテムを占おう！大吉が出たらラッキー🎉</p>
         <div class="play-btn">
-          <span>冒険を始める</span>
+          <span>占ってみる</span>
           <span>➔</span>
         </div>
       </a>

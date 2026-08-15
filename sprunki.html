@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎵 スプランキー・ビートメーカー（Sprunki OC） 🎧</title>
+  <meta name="description" content="画像と音声を自由にアップロードして自分だけのキャラクター（OC）を作れるビートボックス・音楽ミキシングゲーム！">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #12131c;
+      --panel-bg: rgba(26, 29, 46, 0.92);
+      --slot-bg: rgba(18, 20, 32, 0.7);
+      --border-glow: rgba(120, 100, 255, 0.3);
+      --text-main: #f0f2ff;
+      --text-muted: #8b92b3;
+      --accent-pink: #ff3377;
+      --accent-cyan: #00f0ff;
+      --accent-yellow: #ffe600;
+      --accent-purple: #9d4edd;
+      --accent-green: #06d6a0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 30%, #1f233a 0%, #0d0e15 100%);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* ヘッダー・ナビ */
+    header {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 0 8px;
+    }
+
+    .nav-btn {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover {
+      background: rgba(0, 240, 255, 0.25);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+    }
+
+    .bpm-badge {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .beat-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #444;
+      transition: all 0.08s ease;
+    }
+    .beat-dot.active {
+      background: var(--accent-pink);
+      box-shadow: 0 0 10px var(--accent-pink);
+      transform: scale(1.3);
+    }
+
+    /* メインゲームエリア */
+    .game-wrapper {
+      width: 100%;
+      max-width: 1100px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border-radius: 32px;
+      border: 2px solid var(--border-glow);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(120, 100, 255, 0.15);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+
+    /* ステージエリア（7つのキャラクタースロット） */
+    .stage-area {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+      min-height: 240px;
+      background: var(--slot-bg);
+      border-radius: 24px;
+      padding: 18px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      align-items: end;
+    }
+
+    @media (max-width: 820px) {
+      .stage-area {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .stage-area {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .slot {
+      height: 220px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 10px 6px;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+
+    .slot.drag-over {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      transform: scale(1.03);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+    }
+
+    .slot.active {
+      border-style: solid;
+      border-color: rgba(255, 255, 255, 0.3);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.08) 100%);
+    }
+
+    /* スロット内のデフォルト（空っぽ）影キャラ */
+    .empty-character {
+      width: 60px;
+      height: 90px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 30px 30px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      opacity: 0.5;
+      transition: all 0.2s;
+    }
+
+    .empty-eyes {
+      display: flex;
+      gap: 12px;
+    }
+    .empty-eye {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .slot-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      position: absolute;
+      bottom: 8px;
+    }
+
+    /* 演奏中のアクティブキャラクター */
+    .active-character-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      position: relative;
+    }
+
+    .char-avatar {
+      width: 78px;
+      height: 78px;
+      border-radius: 20px;
+      object-fit: cover;
+      border: 3px solid #fff;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+      margin-bottom: 12px;
+      transition: transform 0.1s ease;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+
+    /* ビート同期アニメーション */
+    .bouncing .char-avatar {
+      animation: beatBounce 0.5s infinite ease-in-out alternate;
+    }
+
+    @keyframes beatBounce {
+      0% { transform: scale(1) translateY(0); }
+      100% { transform: scale(1.1) translateY(-10px); }
+    }
+
+    .char-name-label {
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 2px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 90%;
+      margin-bottom: 6px;
+    }
+
+    /* スロット操作ボタン（削除・ミュート） */
+    .slot-controls {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .slot-ctrl-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #fff;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .slot-ctrl-btn:hover {
+      transform: scale(1.15);
+    }
+    .slot-ctrl-btn.remove:hover { background: #ff4757; }
+    .slot-ctrl-btn.mute.is-muted { background: #ffa502; color: #000; }
+
+    /* 下部：キャラクターパレットトレイ */
+    .palette-section {
+      background: rgba(18, 20, 32, 0.6);
+      border-radius: 24px;
+      padding: 18px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .palette-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .palette-title {
+      font-size: 1rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .palette-grid {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 6px 4px 12px;
+    }
+
+    .palette-grid::-webkit-scrollbar {
+      height: 6px;
+    }
+    .palette-grid::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    /* キャラクターカード（パレット内） */
+    .char-card {
+      flex: 0 0 84px;
+      height: 110px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    .char-card:hover {
+      transform: translateY(-6px) scale(1.06);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 10px 20px rgba(0, 240, 255, 0.2);
+    }
+
+    .char-card:active {
+      cursor: grabbing;
+      transform: scale(0.96);
+    }
+
+    .char-card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      object-fit: cover;
+      margin-bottom: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      background: #1e2235;
+    }
+
+    .char-card-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 76px;
+    }
+
+    .char-card-type {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 0.6rem;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.5);
+    }
+
+    /* 新規OC作成ボタン */
+    .create-oc-btn {
+      flex: 0 0 84px;
+      height: 110px;
+      background: linear-gradient(135deg, rgba(255, 51, 119, 0.15) 0%, rgba(157, 78, 221, 0.15) 100%);
+      border: 2px dashed var(--accent-pink);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-pink);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.75rem;
+      gap: 6px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .create-oc-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 51, 119, 0.3) 0%, rgba(157, 78, 221, 0.3) 100%);
+      transform: translateY(-6px) scale(1.06);
+      box-shadow: 0 10px 20px rgba(255, 51, 119, 0.3);
+    }
+
+    .create-oc-btn .plus-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    /* ボトムコントロールバー */
+    .bottom-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .ctrl-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .main-btn {
+      background: linear-gradient(135deg, #ff3377 0%, #ff5d8f 100%);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 24px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(255, 51, 119, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .main-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 24px rgba(255, 51, 119, 0.5);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* モーダル（OC作成ダイアログ） */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 480px;
+      background: #1a1d2e;
+      border: 2px solid var(--accent-pink);
+      border-radius: 28px;
+      padding: 28px 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255, 51, 119, 0.3);
+      position: relative;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--accent-cyan);
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .file-drop-area {
+      border: 2px dashed rgba(255, 255, 255, 0.25);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.2s;
+    }
+    .file-drop-area:hover {
+      border-color: var(--accent-pink);
+      background: rgba(255, 51, 119, 0.05);
+    }
+
+    .preview-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      margin: 8px auto 0;
+      border: 2px solid #fff;
+      object-fit: cover;
+      display: none;
+    }
+
+    /* マイク録音ボタン */
+    .record-box {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .rec-btn {
+      flex: 1;
+      background: #ff4757;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .rec-btn.recording {
+      animation: pulse 1s infinite alternate;
+      background: #ff0000;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); box-shadow: 0 0 14px red; }
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="nav-btn">🏠 ホームへ戻る</a>
+    <div class="bpm-badge">
+      <span>BPM 120</span>
+      <div class="beat-dot" id="dot1"></div>
+      <div class="beat-dot" id="dot2"></div>
+      <div class="beat-dot" id="dot3"></div>
+      <div class="beat-dot" id="dot4"></div>
+    </div>
+  </header>
+
+  <main class="game-wrapper">
+    <!-- ステージエリア（7スロット） -->
+    <div class="stage-area" id="stageArea">
+      <!-- JSで7スロット生成 -->
+    </div>
+
+    <!-- キャラクターパレット（一覧 ＆ OC追加ボタン） -->
+    <section class="palette-section">
+      <div class="palette-header">
+        <div class="palette-title">
+          <span>🎨 キャラクターを選んでスロットに置こう！</span>
+        </div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">（ドラッグまたはクリックで配置）</span>
+      </div>
+
+      <div class="palette-grid" id="paletteGrid">
+        <!-- 新規OC作成ボタン -->
+        <button class="create-oc-btn" id="openModalBtn">
+          <span class="plus-icon">＋</span>
+          <span>自作OC追加</span>
+        </button>
+        <!-- JSでキャラクターカード生成 -->
+      </div>
+    </section>
+
+    <!-- ボトムコントロール -->
+    <div class="bottom-controls">
+      <div class="ctrl-group">
+        <button class="main-btn" id="playPauseBtn">
+          <span id="playIcon">⏸️</span>
+          <span id="playText">一時停止</span>
+        </button>
+        <button class="secondary-btn" id="clearAllBtn">
+          🔄 全員退場（リセット）
+        </button>
+      </div>
+
+      <div class="ctrl-group">
+        <span style="font-size: 0.85rem; color: var(--text-muted);">🎧 好きな絵と音でオリジナルキャラを作って鳴らそう！</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- OC作成モーダル -->
+  <div class="modal-overlay" id="ocModal">
+    <div class="modal-box">
+      <h2 class="modal-title">✨ 新しいオリジナルキャラ（OC）を作る</h2>
+
+      <div class="form-group">
+        <label class="form-label">キャラクター名</label>
+        <input type="text" class="form-input" id="ocName" placeholder="例: ニャンビート" maxlength="12">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">キャラクター画像（PNG / JPG / GIF）</label>
+        <div class="file-drop-area" id="imageDropArea">
+          <span>📁 クリックして画像ファイルを選択</span>
+          <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          <img id="imagePreview" class="preview-box" alt="preview">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">キャラクター音声（音源ファイル または マイク録音）</label>
+        <div class="file-drop-area" id="audioDropArea">
+          <span id="audioStatusText">🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)</span>
+          <input type="file" id="audioInput" accept="audio/*" style="display: none;">
+        </div>
+        <div class="record-box">
+          <button type="button" class="rec-btn" id="recBtn">
+            <span>🎙️</span>
+            <span id="recBtnText">マイクで自分の声を録音</span>
+          </button>
+          <span id="recStatus" style="font-size: 0.75rem; color: var(--accent-yellow);"></span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="secondary-btn" style="flex: 1;" id="closeModalBtn">キャンセル</button>
+        <button class="main-btn" style="flex: 1;" id="saveOcBtn">キャラを登録する！</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Web Audio API & サウンドエンジン ---
+    let audioCtx = null;
+    let isPlaying = true;
+    let currentBeat = 0;
+    const BPM = 120;
+    const BEAT_INTERVAL = (60 / BPM) * 1000; // 500ms
+    const TOTAL_SLOTS = 7;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    // デフォルトキャラクター定義（Web Audio APIによるシンセ＆ビートサウンド）
+    const DEFAULT_CHARACTERS = [
+      {
+        id: "kick_snare",
+        name: "キックドラム",
+        type: "BEAT",
+        color: "#ff3377",
+        icon: "🥁",
+        isDefault: true,
+        play: (time, beat) => {
+          // ドッ・パッ（1, 3拍目にキック、2, 4拍目にスネア）
+          if (beat % 2 === 0) {
+            // Kick
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(140, time);
+            osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.25);
+            gain.gain.setValueAtTime(0.4, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.25);
+          } else {
+            // Snare (Noise + Tone)
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(200, time);
+            gain.gain.setValueAtTime(0.25, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.15);
+          }
+        }
+      },
+      {
+        id: "hihat",
+        name: "ハイハット",
+        type: "BEAT",
+        color: "#00f0ff",
+        icon: "🎩",
+        isDefault: true,
+        play: (time, beat) => {
+          // チキチキ（毎拍＋裏拍）
+          [0, 0.25].forEach(offset => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "highpass";
+            osc.frequency.setValueAtTime(8000 + Math.random() * 2000, time + offset);
+            gain.gain.setValueAtTime(0.08, time + offset);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + offset + 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time + offset);
+            osc.stop(time + offset + 0.05);
+          });
+        }
+      },
+      {
+        id: "bass",
+        name: "ベースライン",
+        type: "BASS",
+        color: "#9d4edd",
+        icon: "🎸",
+        isDefault: true,
+        play: (time, beat) => {
+          const notes = [65.41, 73.42, 82.41, 98.00]; // C2, D2, E2, G2
+          const freq = notes[beat % 4];
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(freq, time);
+          gain.gain.setValueAtTime(0.25, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(time);
+          osc.stop(time + 0.4);
+        }
+      },
+      {
+        id: "synth",
+        name: "パステルシンセ",
+        type: "MELODY",
+        color: "#ffe600",
+        icon: "🎹",
+        isDefault: true,
+        play: (time, beat) => {
+          const chordNotes = [
+            [523.25, 659.25], // C5, E5
+            [587.33, 698.46], // D5, F5
+            [659.25, 783.99], // E5, G5
+            [523.25, 783.99]  // C5, G5
+          ];
+          const freqs = chordNotes[beat % 4];
+          freqs.forEach(f => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(f, time);
+            gain.gain.setValueAtTime(0.12, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.35);
+          });
+        }
+      },
+      {
+        id: "sparkle",
+        name: "キラキラベル",
+        type: "EFFECT",
+        color: "#06d6a0",
+        icon: "✨",
+        isDefault: true,
+        play: (time, beat) => {
+          if (beat % 2 === 0) {
+            [1046.5, 1318.5, 1567.98].forEach((f, idx) => {
+              const osc = audioCtx.createOscillator();
+              const gain = audioCtx.createGain();
+              osc.type = "triangle";
+              osc.frequency.setValueAtTime(f, time + idx * 0.08);
+              gain.gain.setValueAtTime(0.1, time + idx * 0.08);
+              gain.gain.exponentialRampToValueAtTime(0.001, time + idx * 0.08 + 0.25);
+              osc.connect(gain);
+              gain.connect(audioCtx.destination);
+              osc.start(time + idx * 0.08);
+              osc.stop(time + idx * 0.08 + 0.25);
+            });
+          }
+        }
+      },
+      {
+        id: "voice",
+        name: "スプランキーボイス",
+        type: "VOICE",
+        color: "#ff9f1c",
+        icon: "🎤",
+        isDefault: true,
+        play: (time, beat) => {
+          // 「イェイ！」のようなフォルマント風トーン
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "square";
+          osc.frequency.setValueAtTime(350, time);
+          osc.frequency.exponentialRampToValueAtTime(500, time + 0.15);
+          gain.gain.setValueAtTime(0.12, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(time);
+          osc.stop(time + 0.25);
+        }
+      }
+    ];
+
+    // ユーザー作成のカスタムOCリスト（localStorage保存）
+    let customCharacters = JSON.parse(localStorage.getItem("sprunki_custom_ocs") || "[]");
+    let allCharacters = [...DEFAULT_CHARACTERS, ...customCharacters];
+
+    // ステージスロットの状態（7枠）
+    const slotStates = Array(TOTAL_SLOTS).fill(null).map(() => ({
+      character: null,
+      isMuted: false
+    }));
+
+    // DOM要素
+    const stageArea = document.getElementById("stageArea");
+    const paletteGrid = document.getElementById("paletteGrid");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const playIcon = document.getElementById("playIcon");
+    const playText = document.getElementById("playText");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const dots = [
+      document.getElementById("dot1"),
+      document.getElementById("dot2"),
+      document.getElementById("dot3"),
+      document.getElementById("dot4")
+    ];
+
+    // --- ステージスロット描画 ---
+    function renderStage() {
+      stageArea.innerHTML = "";
+      slotStates.forEach((slot, index) => {
+        const slotEl = document.createElement("div");
+        slotEl.className = `slot ${slot.character ? "active bouncing" : ""}`;
+        slotEl.dataset.slotIndex = index;
+
+        if (slot.character) {
+          // キャラクター配置中
+          const char = slot.character;
+          slotEl.innerHTML = `
+            <div class="active-character-wrapper">
+              <div class="char-avatar" style="border-color: ${char.color || '#ff3377'}">
+                ${char.image ? `<img src="${char.image}" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">` : char.icon}
+              </div>
+              <div class="char-name-label">${char.name}</div>
+              <div class="slot-controls">
+                <button class="slot-ctrl-btn mute ${slot.isMuted ? 'is-muted' : ''}" title="ミュート">
+                  ${slot.isMuted ? '🔇' : '🔊'}
+                </button>
+                <button class="slot-ctrl-btn remove" title="外す">✕</button>
+              </div>
+            </div>
+          `;
+
+          // ミュートボタン
+          slotEl.querySelector(".mute").addEventListener("click", (e) => {
+            e.stopPropagation();
+            slot.isMuted = !slot.isMuted;
+            renderStage();
+          });
+
+          // 削除ボタン
+          slotEl.querySelector(".remove").addEventListener("click", (e) => {
+            e.stopPropagation();
+            slot.character = null;
+            renderStage();
+          });
+        } else {
+          // 空きスロット
+          slotEl.innerHTML = `
+            <div class="empty-character">
+              <div class="empty-eyes">
+                <div class="empty-eye"></div>
+                <div class="empty-eye"></div>
+              </div>
+            </div>
+            <div class="slot-hint">枠 ${index + 1}</div>
+          `;
+        }
+
+        // ドラッグ＆ドロップ対応
+        slotEl.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          slotEl.classList.add("drag-over");
+        });
+        slotEl.addEventListener("dragleave", () => {
+          slotEl.classList.remove("drag-over");
+        });
+        slotEl.addEventListener("drop", (e) => {
+          e.preventDefault();
+          slotEl.classList.remove("drag-over");
+          const charId = e.dataTransfer.getData("text/plain");
+          const char = allCharacters.find(c => c.id === charId);
+          if (char) {
+            initAudio();
+            slot.character = char;
+            renderStage();
+          }
+        });
+
+        stageArea.appendChild(slotEl);
+      });
+    }
+
+    // --- パレット描画 ---
+    function renderPalette() {
+      // 既存のキャラカードを削除（OC作成ボタンは残す）
+      const cards = paletteGrid.querySelectorAll(".char-card");
+      cards.forEach(c => c.remove());
+
+      allCharacters.forEach(char => {
+        const card = document.createElement("div");
+        card.className = "char-card";
+        card.draggable = true;
+        card.dataset.charId = char.id;
+
+        card.innerHTML = `
+          <div class="char-card-type">${char.type || 'OC'}</div>
+          <div class="char-card-icon" style="border-color: ${char.color || '#00f0ff'}">
+            ${char.image ? `<img src="${char.image}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">` : char.icon}
+          </div>
+          <div class="char-card-name">${char.name}</div>
+        `;
+
+        // ドラッグ開始
+        card.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", char.id);
+        });
+
+        // クリックで最初の空きスロットに自動配置
+        card.addEventListener("click", () => {
+          initAudio();
+          const firstEmpty = slotStates.find(s => !s.character);
+          if (firstEmpty) {
+            firstEmpty.character = char;
+            renderStage();
+          }
+        });
+
+        paletteGrid.appendChild(card);
+      });
+    }
+
+    // --- メインループ（BPM同期シーケンサー） ---
+    function stepBeat() {
+      if (!isPlaying) return;
+      initAudio();
+
+      const time = audioCtx.currentTime;
+      const beatInBar = currentBeat % 4;
+
+      // ビートインジケーター（LED）
+      dots.forEach((dot, i) => {
+        if (i === beatInBar) dot.classList.add("active");
+        else dot.classList.remove("active");
+      });
+
+      // 各スロットの音を鳴らす
+      slotStates.forEach(slot => {
+        if (slot.character && !slot.isMuted) {
+          const char = slot.character;
+          if (char.isDefault && char.play) {
+            char.play(time, currentBeat);
+          } else if (char.audioBuffer) {
+            // カスタムOCの音声（毎小節 or 毎拍ループ）
+            if (currentBeat % 4 === 0 || char.loopEveryBeat) {
+              const src = audioCtx.createBufferSource();
+              src.buffer = char.audioBuffer;
+              src.connect(audioCtx.destination);
+              src.start(time);
+            }
+          }
+        }
+      });
+
+      currentBeat++;
+    }
+
+    let loopInterval = setInterval(stepBeat, BEAT_INTERVAL);
+
+    // 再生 / 一時停止
+    playPauseBtn.addEventListener("click", () => {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        initAudio();
+        playIcon.textContent = "⏸️";
+        playText.textContent = "一時停止";
+      } else {
+        playIcon.textContent = "▶️";
+        playText.textContent = "再生";
+        dots.forEach(d => d.classList.remove("active"));
+      }
+    });
+
+    // 全員退場
+    clearAllBtn.addEventListener("click", () => {
+      slotStates.forEach(s => s.character = null);
+      renderStage();
+    });
+
+    // --- 自作OC作成モーダル ＆ 録音処理 ---
+    const ocModal = document.getElementById("ocModal");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const saveOcBtn = document.getElementById("saveOcBtn");
+    const ocNameInput = document.getElementById("ocName");
+    const imageDropArea = document.getElementById("imageDropArea");
+    const imageInput = document.getElementById("imageInput");
+    const imagePreview = document.getElementById("imagePreview");
+    const audioDropArea = document.getElementById("audioDropArea");
+    const audioInput = document.getElementById("audioInput");
+    const audioStatusText = document.getElementById("audioStatusText");
+    const recBtn = document.getElementById("recBtn");
+    const recBtnText = document.getElementById("recBtnText");
+    const recStatus = document.getElementById("recStatus");
+
+    let uploadedImageData = null;
+    let customAudioBuffer = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    // モーダル開閉
+    openModalBtn.addEventListener("click", () => {
+      ocModal.classList.add("open");
+      uploadedImageData = null;
+      customAudioBuffer = null;
+      ocNameInput.value = "";
+      imagePreview.style.display = "none";
+      audioStatusText.textContent = "🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)";
+      recStatus.textContent = "";
+    });
+    closeModalBtn.addEventListener("click", () => ocModal.classList.remove("open"));
+
+    // 画像アップロード
+    imageDropArea.addEventListener("click", () => imageInput.click());
+    imageInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          uploadedImageData = event.target.result;
+          imagePreview.src = uploadedImageData;
+          imagePreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 音声ファイルアップロード
+    audioDropArea.addEventListener("click", () => audioInput.click());
+    audioInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        initAudio();
+        const arrayBuffer = await file.arrayBuffer();
+        customAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        audioStatusText.textContent = `✅ 音声読み込み完了: ${file.name}`;
+      }
+    });
+
+    // マイク録音
+    recBtn.addEventListener("click", async () => {
+      initAudio();
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            const arrayBuffer = await audioBlob.arrayBuffer();
+            customAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            recStatus.textContent = "🎉 録音完了！";
+            audioStatusText.textContent = "✅ マイク録音の音声をセットしました";
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+          recBtn.classList.add("recording");
+          recBtnText.textContent = "■ 録音停止";
+          recStatus.textContent = "録音中...";
+        } catch (err) {
+          alert("マイクへのアクセスが許可されていません。");
+        }
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        recBtn.classList.remove("recording");
+        recBtnText.textContent = "🎙️ もう一度録音する";
+      }
+    });
+
+    // OC保存
+    saveOcBtn.addEventListener("click", () => {
+      const name = ocNameInput.value.trim() || "マイキャラ";
+      const newOc = {
+        id: "oc_" + Date.now(),
+        name: name,
+        type: "OC",
+        color: "#" + Math.floor(Math.random()*16777215).toString(16),
+        icon: "🌟",
+        image: uploadedImageData,
+        audioBuffer: customAudioBuffer
+      };
+
+      // 音声が設定されていない場合はデフォルトのピコピコ音を自動生成
+      if (!customAudioBuffer) {
+        initAudio();
+        const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.3, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < buffer.length; i++) {
+          data[i] = Math.sin(i * 0.05) * Math.exp(-i / (audioCtx.sampleRate * 0.1));
+        }
+        newOc.audioBuffer = buffer;
+      }
+
+      customCharacters.push(newOc);
+      allCharacters.push(newOc);
+
+      renderPalette();
+      ocModal.classList.remove("open");
+    });
+
+    // 初期描画
+    renderStage();
+    renderPalette();
+  </script>
+</body>
+</html>
