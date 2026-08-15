@@ -62,7 +62,7 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 600px;
+      max-width: 780px;
       background: var(--card-bg);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -106,16 +106,16 @@
       gap: 20px;
     }
 
-    @media (min-width: 520px) {
+    @media (min-width: 680px) {
       .game-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(3, 1fr);
       }
     }
 
     .game-card {
       background: #ffffff;
       border-radius: 28px;
-      padding: 28px 20px;
+      padding: 24px 18px;
       text-decoration: none;
       color: inherit;
       display: flex;
@@ -146,15 +146,24 @@
       box-shadow: 0 16px 35px rgba(67, 97, 238, 0.3);
     }
 
+    .game-card-neko {
+      border-color: #ede3d1;
+    }
+    .game-card-neko:hover {
+      border-color: #c84b31;
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 16px 35px rgba(200, 75, 49, 0.3);
+    }
+
     .game-icon-box {
-      width: 80px;
-      height: 80px;
-      border-radius: 24px;
+      width: 76px;
+      height: 76px;
+      border-radius: 22px;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 2.8rem;
-      margin-bottom: 16px;
+      font-size: 2.6rem;
+      margin-bottom: 14px;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
@@ -166,29 +175,33 @@
       background: linear-gradient(135deg, #e0ecff 0%, #b8d5fd 100%);
     }
 
+    .game-card-neko .game-icon-box {
+      background: linear-gradient(135deg, #fceddb 0%, #ede3d1 100%);
+    }
+
     .game-card:hover .game-icon-box {
       transform: scale(1.15) rotate(6deg);
     }
 
     .game-title {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       font-weight: 900;
       margin-bottom: 8px;
     }
 
     .game-desc {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
       line-height: 1.5;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       flex-grow: 1;
     }
 
     .play-btn {
       width: 100%;
-      padding: 12px 18px;
+      padding: 10px 16px;
       border-radius: 999px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 900;
       display: flex;
       justify-content: center;
@@ -207,6 +220,12 @@
       background: linear-gradient(135deg, #4895ef 0%, #4361ee 100%);
       color: #fff;
       box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+    }
+
+    .game-card-neko .play-btn {
+      background: linear-gradient(135deg, #c84b31 0%, #e06d53 100%);
+      color: #fff;
+      box-shadow: 0 6px 15px rgba(200, 75, 49, 0.3);
     }
 
     .footer-note {
@@ -243,9 +262,20 @@
       <a href="janken.html" class="game-card game-card-janken">
         <div class="game-icon-box">✊</div>
         <h2 class="game-title">じゃんけんバトル</h2>
-        <p class="game-desc">コンピューターとじゃんけん勝負！勝ち負けの回数もカウントするよ🔥</p>
+        <p class="game-desc">コンピューターと勝負！勝ち負けの回数もカウントするよ🔥</p>
         <div class="play-btn">
           <span>勝負する</span>
+          <span>➔</span>
+        </div>
+      </a>
+
+      <!-- 吾輩は猫であるゲームブックカード -->
+      <a href="neko.html" class="game-card game-card-neko">
+        <div class="game-icon-box">🐾</div>
+        <h2 class="game-title">吾輩は猫である</h2>
+        <p class="game-desc">名無しの猫になって日常を冒険！全5種類の結末を見つけよう📖</p>
+        <div class="play-btn">
+          <span>冒険を始める</span>
           <span>➔</span>
         </div>
       </a>

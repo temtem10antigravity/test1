@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐾 吾輩は猫である 〜ゲームブック〜 📜</title>
+  <meta name="description" content="夏目漱石『吾輩は猫である』の猫になって日常を冒険する選択式ショートショートゲームブック！">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #f7f3e9;
+      --card-bg: #fffdf9;
+      --border-color: #e5dccb;
+      --text-main: #382e25;
+      --text-muted: #7c7063;
+      --accent-red: #c84b31;
+      --accent-gold: #d4a373;
+      --accent-green: #606c38;
+      --shadow: 0 15px 35px rgba(80, 60, 40, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Shippori Mincho', serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fceddb 0%, #f7f3e9 50%, #e8ede4 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+      color: var(--text-main);
+      position: relative;
+    }
+
+    /* レトロな和紙テクスチャ感 */
+    .book-container {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      background: var(--card-bg);
+      border-radius: 28px;
+      padding: 40px 32px;
+      box-shadow: var(--shadow);
+      border: 4px solid #ede3d1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 和風の飾り枠線 */
+    .book-container::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border: 1px dashed #d5c8b2;
+      border-radius: 20px;
+      pointer-events: none;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .back-home {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-red);
+      text-decoration: none;
+      background: #fae8e5;
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    .back-home:hover {
+      background: #f5d1cb;
+      transform: scale(1.05);
+    }
+
+    .sound-btn {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      background: #f4eee1;
+      border: 1px solid #dfd5c2;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* 章・ステップバッジ */
+    .chapter-badge {
+      display: inline-block;
+      background: #e9edc9;
+      color: var(--accent-green);
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 900;
+      padding: 4px 14px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #2b2219;
+      margin-bottom: 24px;
+      text-align: center;
+      letter-spacing: 0.08em;
+      border-bottom: 2px solid #ede3d1;
+      padding-bottom: 14px;
+    }
+
+    /* 猫の挿絵・アイコン */
+    .scene-illustration {
+      text-align: center;
+      font-size: 4rem;
+      margin: 12px 0 20px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+      animation: catBob 2.5s infinite ease-in-out alternate;
+    }
+
+    @keyframes catBob {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-8px); }
+    }
+
+    /* 本文テキストエリア */
+    .story-text {
+      font-size: 1.15rem;
+      line-height: 1.9;
+      color: #382e25;
+      margin-bottom: 30px;
+      padding: 0 8px;
+      min-height: 120px;
+      transition: opacity 0.3s ease;
+    }
+
+    /* 選択肢エリア */
+    .choices-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .choice-btn {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-align: left;
+      background: #ffffff;
+      border: 2px solid #dfd5c2;
+      border-radius: 18px;
+      padding: 16px 20px;
+      cursor: pointer;
+      color: var(--text-main);
+      box-shadow: 0 6px 14px rgba(100, 80, 60, 0.06);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      line-height: 1.4;
+    }
+
+    .choice-btn:hover {
+      transform: translateX(6px) scale(1.02);
+      border-color: var(--accent-red);
+      background: #fff9f8;
+      box-shadow: 0 8px 20px rgba(200, 75, 49, 0.15);
+    }
+
+    .choice-btn:active {
+      transform: translateX(2px) scale(0.98);
+    }
+
+    .choice-marker {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 28px;
+      height: 28px;
+      background: #fae8e5;
+      color: var(--accent-red);
+      border-radius: 50%;
+      font-size: 0.85rem;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    /* エンディング画面 */
+    .ending-card {
+      text-align: center;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ending-badge {
+      display: inline-block;
+      background: var(--accent-red);
+      color: #fff;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 900;
+      padding: 6px 20px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(200, 75, 49, 0.3);
+    }
+
+    .ending-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #2b2219;
+      margin-bottom: 16px;
+    }
+
+    .action-btn {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      display: inline-block;
+      width: 100%;
+      background: linear-gradient(135deg, #c84b31 0%, #e06d53 100%);
+      color: #ffffff;
+      font-size: 1.15rem;
+      font-weight: 900;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(200, 75, 49, 0.35);
+      transition: all 0.2s;
+      margin-top: 24px;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 25px rgba(200, 75, 49, 0.45);
+    }
+
+    /* コレクション・達成フッター */
+    .ending-collection {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px dashed #dfd5c2;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: 'Zen Maru Gothic', sans-serif;
+    }
+
+    .collection-badges {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .coll-tag {
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: #ede3d1;
+      color: #8c7e6c;
+      font-size: 0.75rem;
+    }
+
+    .coll-tag.unlocked {
+      background: #fae8e5;
+      color: var(--accent-red);
+      font-weight: 700;
+      border: 1px solid #f5cfc7;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 99;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confettiCanvas"></canvas>
+
+  <main class="book-container">
+    <div class="top-bar">
+      <a href="index.html" class="back-home">🏠 ホームへ戻る</a>
+      <button class="sound-btn" id="soundBtn">🔊 音声: ON</button>
+    </div>
+
+    <div style="text-align: center;">
+      <span class="chapter-badge" id="chapterBadge">第 一 章</span>
+    </div>
+    <h1>🐾 吾輩は猫である</h1>
+
+    <!-- 挿絵・アイコン -->
+    <div class="scene-illustration" id="sceneIllustration">🐱</div>
+
+    <!-- 物語テキスト -->
+    <div class="story-text" id="storyText">
+      吾輩は猫である。名前はまだ無い。<br><br>
+      どこで生れたかとんと見当がつかぬが、ここ珍野苦沙弥（くしゃみ）先生の家はなかなかに居心地が良い。<br>
+      さて、うららかな午後のひととき。吾輩はいかに過ごすべきであろうか？
+    </div>
+
+    <!-- 選択肢ボタンエリア -->
+    <div class="choices-container" id="choicesContainer">
+      <!-- JSで動的生成 -->
+    </div>
+
+    <!-- コレクション状況 -->
+    <div class="ending-collection">
+      <div>📖 見つけた結末（エンディング）</div>
+      <div class="collection-badges" id="collectionBadges">
+        <!-- JSでバッジ生成 -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ストーリーグラフデータ
+    const STORY_NODES = {
+      start: {
+        chapter: "第 一 章",
+        icon: "🐾",
+        text: "吾輩は猫である。名前はまだ無い。<br><br>どこで生れたかとんと見当がつかぬが、ここ珍野苦沙弥（くしゃみ）先生の家はなかなかに居心地が良い。<br>さて、うららかな午後のひととき。吾輩はいかに過ごすべきであろうか？",
+        choices: [
+          { text: "ポカポカの縁側へ行って日向ぼっこをする", next: "engawa" },
+          { text: "先生の書斎に忍び込んで机の上を調べる", next: "shosai" },
+          { text: "塀を伝って外の町内へパトロールに出る", next: "bouken" }
+        ]
+      },
+
+      // --- 第2章：縁側ルート ---
+      engawa: {
+        chapter: "第 二 章（縁側）",
+        icon: "☀️",
+        text: "縁側に寝そべると、春の暖かな日差しが毛並みを包み込んで実に心地よい。<br><br>うつらうつらしていると、台所の方から何やら魚を焼く香ばしい匂いが漂ってきた。庭先では蝶々がひらひらと舞っている。",
+        choices: [
+          { text: "心地よい暖かさに身をまかせ、目を閉じて眠る", next: "end_nap" },
+          { text: "魚の匂いに誘われて、そっと台所を覗きに行く", next: "end_thief" }
+        ]
+      },
+
+      // --- 第2章：書斎ルート ---
+      shosai: {
+        chapter: "第 二 章（書斎）",
+        icon: "📚",
+        text: "足音を忍ばせて書斎に入ると、先生は机に突っ伏していびきをかいておられる。<br><br>机の上には書きかけの原稿用紙と、蓋の開いたインク瓶が置かれている。人間というものは実に手のかかる生き物である。",
+        choices: [
+          { text: "原稿用紙のど真ん中に飛び乗り、丸くなって座る", next: "end_author" },
+          { text: "インク瓶にちょいと前足を突っ込んでみる", next: "end_art" }
+        ]
+      },
+
+      // --- 第2章：冒険ルート ---
+      bouken: {
+        chapter: "第 二 章（路地裏）",
+        icon: "🐈‍⬛",
+        text: "塀の上を器用に歩いて裏路地へ出ると、車屋の黒猫（クロ）がドッシリと仁王立ちしていた。<br><br>「おい新参者、ここは俺の縄張りだニャ」と眼光鋭く睨みつけてくる。",
+        choices: [
+          { text: "胸を張り、気品あふれる美声で『ニャオ』と挨拶する", next: "end_boss" },
+          { text: "華麗に身をひるがえし、魚屋の裏口へ猛ダッシュ！", next: "end_thief" }
+        ]
+      },
+
+      // --- エンディング群 ---
+      end_nap: {
+        isEnding: true,
+        endingId: "nap",
+        badge: "結末 其の一",
+        title: "🏆【至高の昼寝エンド】",
+        icon: "😴",
+        text: "陽だまりの中で丸くなり、吾輩は深き眠りに落ちた。<br><br>先生が『おい猫、そこは邪魔だ』と小言を言うが、猫にとって昼寝に勝る至福は存在しない。<br>春風が吹き抜ける中、吾輩は最も平和で幸福な猫生を謳歌したのである。<br><br>―― めでたし、めでたし。"
+      },
+      end_thief: {
+        isEnding: true,
+        endingId: "thief",
+        badge: "結末 其の二",
+        title: "🐟【泥棒猫とお三のほうきエンド】",
+        icon: "🧹",
+        text: "台所の焼き魚に手を出した瞬間、「コラッ！またお前かい！」とお三（下女）の怒声が響き渡った！<br><br>ほうきを振り回すお三から必死の形相で逃げ回る吾輩。<br>魚は一口しか食べられなかったが、スリル満点の午後となったのである。<br><br>―― 次回こそは完食してみせる。"
+      },
+      end_author: {
+        isEnding: true,
+        endingId: "author",
+        badge: "結末 其の三",
+        title: "🖋️【文豪の共著者エンド】",
+        icon: "📜",
+        text: "原稿用紙の上でゴロゴロと喉を鳴らしていると、目を覚ました先生が微笑んだ。<br><br>『ほう……お前の毛並みを見ていたら、名作の構想が湧いてきたぞ』<br>こうして生まれた小説こそが、後に大ヒットとなる『吾輩は猫である』であった。<br>吾輩は歴史に名を残す名誉ある猫となったのである！"
+      },
+      end_art: {
+        isEnding: true,
+        endingId: "art",
+        badge: "結末 其の四",
+        title: "🎨【前衛芸術キャットエンド】",
+        icon: "🐾",
+        text: "インクで真っ黒になった足で原稿用紙と障子の上を縦横無尽に走り回った！<br><br>起きた先生は頭を抱えて絶叫したが、遊びに来た迷亭先生は『これぞ新時代の抽象画だ！』と大絶賛。<br>吾輩の肉球スタンプは、近代芸術の最高傑作として額縁に飾られたのである。"
+      },
+      end_boss: {
+        isEnding: true,
+        endingId: "boss",
+        badge: "結末 其の五",
+        title: "👑【裏路地のカリスマ猫エンド】",
+        icon: "🕶️",
+        text: "吾輩のただならぬ知性と気品に、恐れ知らずのクロも思わずひれ伏した。<br><br>『アニキ、一生ついて行きますニャ！』<br>こうして吾輩は一言も戦うことなく、町内の猫たちを束ねる偉大なるボス猫となったのである。<br>知性は力よりも強し、吾輩の威厳ここに極まれり。"
+      }
+    };
+
+    const ALL_ENDINGS = [
+      { id: "nap", title: "其の一: 至高の昼寝" },
+      { id: "thief", title: "其の二: 泥棒猫" },
+      { id: "author", title: "其の三: 文豪の共著者" },
+      { id: "art", title: "其の四: 前衛芸術" },
+      { id: "boss", title: "其の五: カリスマ猫" }
+    ];
+
+    // 状態管理
+    let unlockedEndings = JSON.parse(localStorage.getItem("neko_endings") || "[]");
+    let soundEnabled = true;
+
+    // DOM要素
+    const chapterBadge = document.getElementById("chapterBadge");
+    const sceneIllustration = document.getElementById("sceneIllustration");
+    const storyText = document.getElementById("storyText");
+    const choicesContainer = document.getElementById("choicesContainer");
+    const collectionBadges = document.getElementById("collectionBadges");
+    const soundBtn = document.getElementById("soundBtn");
+
+    // 効果音（Web Audio API）
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      const now = audioCtx.currentTime;
+      if (type === "page") {
+        // ページめくり・選択音
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(now + 0.12);
+      } else if (type === "ending") {
+        // ファンファーレ
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.4);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.1);
+          osc.stop(now + idx * 0.1 + 0.4);
+        });
+      }
+    }
+
+    soundBtn.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      soundBtn.textContent = soundEnabled ? "🔊 音声: ON" : "🔇 音声: OFF";
+    });
+
+    // コレクションバッジの更新
+    function updateCollectionUI() {
+      collectionBadges.innerHTML = "";
+      ALL_ENDINGS.forEach(end => {
+        const isUnlocked = unlockedEndings.includes(end.id);
+        const tag = document.createElement("span");
+        tag.className = `coll-tag ${isUnlocked ? "unlocked" : ""}`;
+        tag.textContent = isUnlocked ? `✨ ${end.title}` : `🔒 ${end.title}`;
+        collectionBadges.appendChild(tag);
+      });
+    }
+
+    // シーンの描画
+    function renderNode(nodeKey) {
+      const node = STORY_NODES[nodeKey];
+      if (!node) return;
+
+      sceneIllustration.textContent = node.icon;
+      storyText.innerHTML = node.text;
+      choicesContainer.innerHTML = "";
+
+      if (node.isEnding) {
+        // エンディング画面
+        chapterBadge.textContent = "終 幕";
+        chapterBadge.style.background = "#fae8e5";
+        chapterBadge.style.color = "var(--accent-red)";
+
+        // アンロック登録
+        if (!unlockedEndings.includes(node.endingId)) {
+          unlockedEndings.push(node.endingId);
+          localStorage.setItem("neko_endings", JSON.stringify(unlockedEndings));
+          updateCollectionUI();
+        }
+
+        playSound("ending");
+        launchConfetti();
+
+        // もう一度遊ぶボタン
+        const restartBtn = document.createElement("button");
+        restartBtn.className = "action-btn";
+        restartBtn.innerHTML = "🐾 別の選択をしてもう一度遊ぶ";
+        restartBtn.addEventListener("click", () => {
+          playSound("page");
+          renderNode("start");
+        });
+        choicesContainer.appendChild(restartBtn);
+
+      } else {
+        // 通常の分岐シーン
+        chapterBadge.textContent = node.chapter;
+        chapterBadge.style.background = "#e9edc9";
+        chapterBadge.style.color = "var(--accent-green)";
+
+        node.choices.forEach((choice, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "choice-btn";
+          btn.innerHTML = `<span class="choice-marker">${idx + 1}</span> <span>${choice.text}</span>`;
+          btn.addEventListener("click", () => {
+            playSound("page");
+            renderNode(choice.next);
+          });
+          choicesContainer.appendChild(btn);
+        });
+      }
+    }
+
+    // --- 紙吹雪 ---
+    const canvas = document.getElementById("confettiCanvas");
+    const ctx = canvas.getContext("2d");
+    let confettiParticles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    const CONFETTI_COLORS = ["#c84b31", "#d4a373", "#606c38", "#e07a5f", "#f4a261"];
+
+    function launchConfetti() {
+      confettiParticles = [];
+      for (let i = 0; i < 60; i++) {
+        confettiParticles.push({
+          x: canvas.width / 2 + (Math.random() - 0.5) * 100,
+          y: canvas.height / 2,
+          r: Math.random() * 6 + 4,
+          dx: (Math.random() - 0.5) * 10,
+          dy: (Math.random() - 1.2) * 10 - 3,
+          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 10,
+          opacity: 1
+        });
+      }
+      requestAnimationFrame(updateConfetti);
+    }
+
+    function updateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      confettiParticles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+        p.dy += 0.35;
+        p.dx *= 0.98;
+        p.rotation += p.rotSpeed;
+        p.opacity -= 0.015;
+        if (p.opacity > 0) {
+          alive = true;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.opacity;
+          ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.5);
+          ctx.restore();
+        }
+      });
+      if (alive) requestAnimationFrame(updateConfetti);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // 初期化
+    updateCollectionUI();
+    renderNode("start");
+  </script>
+</body>
+</html>
