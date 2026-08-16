@@ -21,7 +21,7 @@
       --accent-yellow: #ffe600;
       --accent-purple: #9d4edd;
       --accent-green: #06d6a0;
-      --beat-speed: 0.5s;
+      --beat-speed: 0.46s; /* BPM130で約0.46s */
     }
 
     * {
@@ -809,13 +809,13 @@
     <!-- BPM 4段階セレクター ＆ LEDインジケーター -->
     <div class="bpm-control-container">
       <div class="bpm-selector">
-        <button class="bpm-btn" data-bpm="80" title="ゆったりテンポ">🐢 80</button>
-        <button class="bpm-btn" data-bpm="100" title="軽快なテンポ">🚶 100</button>
-        <button class="bpm-btn active" data-bpm="120" title="標準テンポ">🏃 120</button>
-        <button class="bpm-btn" data-bpm="145" title="アップテンポ・高速">⚡ 145</button>
+        <button class="bpm-btn" data-bpm="100" title="ゆったりテンポ">🐢 100</button>
+        <button class="bpm-btn active" data-bpm="130" title="標準テンポ">🚶 130</button>
+        <button class="bpm-btn" data-bpm="160" title="アップテンポ">🏃 160</button>
+        <button class="bpm-btn" data-bpm="200" title="超高速・ハイスピード">⚡ 200</button>
       </div>
       <div class="bpm-badge">
-        <span id="bpmDisplay">BPM 120</span>
+        <span id="bpmDisplay">BPM 130</span>
         <div class="beat-dot" id="dot1"></div>
         <div class="beat-dot" id="dot2"></div>
         <div class="beat-dot" id="dot3"></div>
@@ -1289,7 +1289,7 @@
     let audioCtx = null;
     let isPlaying = true;
     let currentBeat = 0;
-    let currentBPM = 120;
+    let currentBPM = 130;
     let loopInterval = null;
     const TOTAL_SLOTS = 7;
 
