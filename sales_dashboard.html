@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>営業推進ダッシュボード | NEXUS Sales AI</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-base: #0a0f1d;
+      --bg-surface: #11182c;
+      --bg-surface-elevated: #1a233d;
+      --bg-card: rgba(17, 24, 44, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.5);
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent-primary: #6366f1;
+      --accent-primary-hover: #4f46e5;
+      --accent-emerald: #10b981;
+      --accent-cyan: #06b6d4;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+
+      --gradient-accent: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      --gradient-emerald: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #f43f5e 100%);
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      
+      --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.25);
+      --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
+      background-attachment: fixed;
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 32px;
+    }
+
+    /* Glass Effect */
+    .glass-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .glass-panel:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: var(--gradient-accent);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .brand-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-emerald);
+      margin-left: 10px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent-emerald);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    /* Actions Header */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-select {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-select:hover, .filter-select:focus {
+      border-color: var(--accent-primary);
+    }
+
+    .btn-primary {
+      background: var(--gradient-accent);
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* KPI Summary Cards Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .kpi-card {
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-primary);
+      opacity: 0.7;
+    }
+
+    .kpi-card.emerald::before { background: var(--gradient-emerald); }
+    .kpi-card.purple::before { background: var(--gradient-accent); }
+    .kpi-card.amber::before { background: var(--gradient-amber); }
+    .kpi-card.cyan::before { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .kpi-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+    }
+
+    .kpi-value {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .kpi-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .trend-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .trend-up {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+    }
+
+    .trend-down {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--accent-rose);
+    }
+
+    .kpi-subtext {
+      color: var(--text-muted);
+    }
+
+    /* Charts Section */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1024px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title-group h2 {
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .chart-container-donut {
+      position: relative;
+      height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .donut-center-text {
+      position: absolute;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .donut-center-text .rate {
+      font-size: 32px;
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .donut-center-text .label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .progress-stats-list {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .stat-mini-box {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .stat-mini-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .stat-mini-val {
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .chart-container-bar {
+      position: relative;
+      height: 310px;
+      width: 100%;
+    }
+
+    /* Pipeline Section */
+    .pipeline-section {
+      padding: 24px;
+    }
+
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .status-tabs {
+      display: flex;
+      background: var(--bg-surface);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      gap: 2px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    }
+
+    .search-box {
+      position: relative;
+      min-width: 260px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px 8px 36px;
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-primary);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .company-cell {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .company-name {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .project-name {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .rep-cell {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .rep-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .badge-stage {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .stage-lead { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; }
+    .stage-proposal { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+    .stage-negotiation { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+    .stage-verbal { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); }
+    .stage-won { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+
+    .probability-bar-container {
+      width: 90px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prob-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .prob-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--gradient-accent);
+    }
+
+    .prob-text {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      min-width: 28px;
+    }
+
+    .amount-cell {
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: var(--bg-surface-elevated);
+      color: #fff;
+      border-color: var(--accent-primary);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      width: 100%;
+      max-width: 500px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-primary);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--accent-emerald);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      animation: toastIn 0.3s ease;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand-section">
+        <div class="brand-logo">
+          <i data-lucide="zap"></i>
+        </div>
+        <div class="brand-title">
+          <div style="display: flex; align-items: center;">
+            <h1>営業推進 KPI ダッシュボード</h1>
+            <span class="live-badge">
+              <span class="pulse-dot"></span> リアルタイム同期中
+            </span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">2026年8月度 | 全社営業統括本部</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <select id="repFilter" class="filter-select" onchange="filterData()">
+          <option value="ALL">全営業担当者 (全員)</option>
+          <option value="佐藤 健一">佐藤 健一 (Top Performer)</option>
+          <option value="田中 美咲">田中 美咲</option>
+          <option value="鈴木 陽介">鈴木 陽介</option>
+          <option value="高橋 涼太">高橋 涼太</option>
+        </select>
+
+        <button class="btn-primary" onclick="openModal()">
+          <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i> 新規商談を登録
+        </button>
+      </div>
+    </header>
+
+    <!-- KPI Summary Cards -->
+    <div class="kpi-grid">
+      <div class="glass-panel kpi-card emerald">
+        <div class="kpi-header">
+          <span class="kpi-title">月間売上実績</span>
+          <div class="kpi-icon" style="color: var(--accent-emerald);">
+            <i data-lucide="banknote"></i>
+          </div>
+        </div>
+        <div class="kpi-value" id="kpiSales">¥48,650,000</div>
+        <div class="kpi-footer">
+          <span class="trend-tag trend-up">
+            <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i> +18.4%
+          </span>
+          <span class="kpi-subtext">目標: ¥50,000,000 (達成率 97.3%)</span>
+        </div>
+      </div>
+
+      <div class="glass-panel kpi-card purple">
+        <div class="kpi-header">
+          <span class="kpi-title">有効パイプライン総額</span>
+          <div class="kpi-icon" style="color: var(--accent-purple);">
+            <i data-lucide="layers"></i>
+          </div>
+        </div>
+        <div class="kpi-value" id="kpiPipeline">¥112,400,000</div>
+        <div class="kpi-footer">
+          <span class="trend-tag trend-up">
+            <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i> +24.1%
+          </span>
+          <span class="kpi-subtext">商談総数: 36件</span>
+        </div>
+      </div>
+
+      <div class="glass-panel kpi-card amber">
+        <div class="kpi-header">
+          <span class="kpi-title">商談成約率 (Win Rate)</span>
+          <div class="kpi-icon" style="color: var(--accent-amber);">
+            <i data-lucide="award"></i>
+          </div>
+        </div>
+        <div class="kpi-value">36.8%</div>
+        <div class="kpi-footer">
+          <span class="trend-tag trend-up">
+            <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i> +4.2pt
+          </span>
+          <span class="kpi-subtext">前四半期比</span>
+        </div>
+      </div>
+
+      <div class="glass-panel kpi-card cyan">
+        <div class="kpi-header">
+          <span class="kpi-title">平均受注単価</span>
+          <div class="kpi-icon" style="color: var(--accent-cyan);">
+            <i data-lucide="sparkles"></i>
+          </div>
+        </div>
+        <div class="kpi-value">¥4,865,000</div>
+        <div class="kpi-footer">
+          <span class="trend-tag trend-up">
+            <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i> +12.0%
+          </span>
+          <span class="kpi-subtext">エンタープライズ比率向上</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+      <!-- Target Achievement Gauge/Donut -->
+      <div class="glass-panel chart-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2><i data-lucide="target" style="width: 18px; height: 18px; color: var(--accent-primary);"></i> 月間目標達成率</h2>
+            <p class="card-subtitle">今月終了まで あと 15 日</p>
+          </div>
+        </div>
+
+        <div class="chart-container-donut">
+          <canvas id="gaugeChart"></canvas>
+          <div class="donut-center-text">
+            <div class="rate" id="donutRateText">97.3%</div>
+            <div class="label">目標達成見込</div>
+          </div>
+        </div>
+
+        <div class="progress-stats-list">
+          <div class="stat-mini-box">
+            <div class="stat-mini-label">月間売上目標</div>
+            <div class="stat-mini-val" style="color: var(--text-secondary);">¥50,000,000</div>
+          </div>
+          <div class="stat-mini-box">
+            <div class="stat-mini-label">目標まで残り</div>
+            <div class="stat-mini-val" style="color: var(--accent-emerald);" id="remainingText">¥1,350,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rep Sales Bar Chart -->
+      <div class="glass-panel chart-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2><i data-lucide="bar-chart-3" style="width: 18px; height: 18px; color: var(--accent-cyan);"></i> 担当者別 売上実績 vs 目標</h2>
+            <p class="card-subtitle">単位: 万円 (実績 / 個人目標)</p>
+          </div>
+        </div>
+
+        <div class="chart-container-bar">
+          <canvas id="repBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline Table Section -->
+    <div class="glass-panel pipeline-section">
+      <div class="table-toolbar">
+        <div class="status-tabs">
+          <button class="tab-btn active" onclick="setStageTab('ALL', this)">すべて (<span id="countAll">8</span>)</button>
+          <button class="tab-btn" onclick="setStageTab('内諾/成約', this)">内諾/成約</button>
+          <button class="tab-btn" onclick="setStageTab('最終交渉', this)">最終交渉</button>
+          <button class="tab-btn" onclick="setStageTab('提案中', this)">提案中</button>
+        </div>
+
+        <div class="search-box">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" id="searchInput" placeholder="企業名・案件名で検索..." oninput="filterData()">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table id="dealsTable">
+          <thead>
+            <tr>
+              <th>企業名 / 案件名</th>
+              <th>担当者</th>
+              <th>フェーズ</th>
+              <th>商談金額</th>
+              <th>成約確度</th>
+              <th>予定成約日</th>
+              <th>アクション</th>
+            </tr>
+          </thead>
+          <tbody id="dealsTableBody">
+            <!-- Dynamic Rendered -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for New Deal -->
+  <div class="modal-overlay" id="dealModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✨ 新規商談の登録</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+
+      <form id="newDealForm" onsubmit="handleCreateDeal(event)">
+        <div class="form-group">
+          <label class="form-label">企業名</label>
+          <input type="text" class="form-input" id="modalCompany" placeholder="例: 株式会社サイバーフロント" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">案件名 / プロジェクト</label>
+          <input type="text" class="form-input" id="modalProject" placeholder="例: 全社AI基盤導入プロジェクト" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">担当営業</label>
+            <select class="form-input" id="modalRep" required>
+              <option value="佐藤 健一">佐藤 健一</option>
+              <option value="田中 美咲">田中 美咲</option>
+              <option value="鈴木 陽介">鈴木 陽介</option>
+              <option value="高橋 涼太">高橋 涼太</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ステータス</label>
+            <select class="form-input" id="modalStage" required>
+              <option value="提案中">提案中</option>
+              <option value="最終交渉">最終交渉</option>
+              <option value="内諾">内諾</option>
+              <option value="成約済み">成約済み</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">商談金額 (円)</label>
+            <input type="number" class="form-input" id="modalAmount" placeholder="例: 6500000" step="100000" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">成約確度 (%)</label>
+            <input type="number" class="form-input" id="modalProb" placeholder="例: 80" min="0" max="100" required>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">キャンセル</button>
+          <button type="submit" class="btn-primary">商談を追加する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // Initial Dataset
+    let deals = [
+      { id: 1, company: 'トヨタモビリティソリューションズ', project: '次世代テレマティクスAI基盤導入', rep: '佐藤 健一', stage: '成約済み', amount: 14500000, prob: 100, date: '2026/08/10' },
+      { id: 2, company: '楽天フィナンシャルグループ', project: 'カスタマーサポート生成AI自動化', rep: '田中 美咲', stage: '成約済み', amount: 12000000, prob: 100, date: '2026/08/14' },
+      { id: 3, company: '三菱商事ロジスティクス', project: 'サプライチェーン最適化PoC', rep: '佐藤 健一', stage: '内諾', amount: 8800000, prob: 90, date: '2026/08/22' },
+      { id: 4, company: 'LINEヤフー株式会社', project: '社内ナレッジ検索エージェント', rep: '鈴木 陽介', stage: '成約済み', amount: 9500000, prob: 100, date: '2026/08/05' },
+      { id: 5, company: 'ソニーネットワークコミュニケーションズ', project: 'IoTデータ分析プラットフォーム', rep: '佐藤 健一', stage: '最終交渉', amount: 7200000, prob: 75, date: '2026/08/26' },
+      { id: 6, company: 'パナソニック コネクト', project: '製造ライン画像検査AI刷新', rep: '高橋 涼太', stage: '成約済み', amount: 6800000, prob: 100, date: '2026/08/12' },
+      { id: 7, company: '住友不動産開発', project: 'スマートビル管理クラウド', rep: '田中 美咲', stage: '最終交渉', amount: 5600000, prob: 70, date: '2026/08/28' },
+      { id: 8, company: 'DeNAヘルスケア', project: '医療画像解析アルゴリズム', rep: '鈴木 陽介', stage: '提案中', amount: 4200000, prob: 50, date: '2026/09/05' }
+    ];
+
+    let currentStageFilter = 'ALL';
+    let gaugeChart = null;
+    let barChart = null;
+
+    const TARGET_SALES = 50000000; // 5,000万円
+
+    // Init Lucide Icons
+    lucide.createIcons();
+
+    // Setup Charts
+    function initCharts() {
+      // Donut Gauge Chart
+      const ctxGauge = document.getElementById('gaugeChart').getContext('2d');
+      gaugeChart = new Chart(ctxGauge, {
+        type: 'doughnut',
+        data: {
+          labels: ['達成済', '未達'],
+          datasets: [{
+            data: [48650000, 1350000],
+            backgroundColor: [
+              '#6366f1',
+              'rgba(255, 255, 255, 0.06)'
+            ],
+            borderWidth: 0,
+            circumference: 240,
+            rotation: 240,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '80%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (item) => ` ¥${item.raw.toLocaleString()}`
+              }
+            }
+          }
+        }
+      });
+
+      // Rep Bar Chart
+      const ctxBar = document.getElementById('repBarChart').getContext('2d');
+      barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: ['佐藤 健一', '田中 美咲', '鈴木 陽介', '高橋 涼太'],
+          datasets: [
+            {
+              label: '売上実績 (成約)',
+              data: [1450, 1200, 950, 680],
+              backgroundColor: '#6366f1',
+              borderRadius: 6,
+              barPercentage: 0.55
+            },
+            {
+              label: '進行中パイプライン',
+              data: [1600, 560, 420, 0],
+              backgroundColor: 'rgba(99, 102, 241, 0.25)',
+              borderRadius: 6,
+              barPercentage: 0.55
+            },
+            {
+              label: '個人目標',
+              data: [1500, 1200, 1100, 1200],
+              type: 'line',
+              borderColor: '#f59e0b',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              pointBackgroundColor: '#f59e0b',
+              pointRadius: 4,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 12 } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { 
+                color: '#94a3b8', 
+                font: { family: 'Plus Jakarta Sans', size: 11 },
+                callback: (val) => `${val}万`
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              align: 'end',
+              labels: {
+                color: '#cbd5e1',
+                boxWidth: 12,
+                boxHeight: 12,
+                usePointStyle: true,
+                font: { family: 'Plus Jakarta Sans', size: 11 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Format Currency
+    function formatYen(num) {
+      return '¥' + num.toLocaleString();
+    }
+
+    // Stage Badge Color Helper
+    function getStageBadge(stage) {
+      switch(stage) {
+        case '成約済み': return '<span class="badge-stage stage-won">成約済み</span>';
+        case '内諾': return '<span class="badge-stage stage-verbal">内諾 (90%)</span>';
+        case '最終交渉': return '<span class="badge-stage stage-negotiation">最終交渉</span>';
+        case '提案中': return '<span class="badge-stage stage-proposal">提案中</span>';
+        default: return `<span class="badge-stage stage-lead">${stage}</span>`;
+      }
+    }
+
+    // Get Rep Initials
+    function getInitials(name) {
+      return name.substring(0, 2);
+    }
+
+    // Render Deals Table & Recalculate Totals
+    function renderTable(filteredDeals) {
+      const tbody = document.getElementById('dealsTableBody');
+      tbody.innerHTML = '';
+
+      if (filteredDeals.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">該当する商談データがありません</td></tr>`;
+        return;
+      }
+
+      filteredDeals.forEach(deal => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div class="company-cell">
+              <span class="company-name">${deal.company}</span>
+              <span class="project-name">${deal.project}</span>
+            </div>
+          </td>
+          <td>
+            <div class="rep-cell">
+              <div class="rep-avatar">${getInitials(deal.rep)}</div>
+              <span>${deal.rep}</span>
+            </div>
+          </td>
+          <td>${getStageBadge(deal.stage)}</td>
+          <td class="amount-cell">${formatYen(deal.amount)}</td>
+          <td>
+            <div class="probability-bar-container">
+              <div class="prob-track">
+                <div class="prob-fill" style="width: ${deal.prob}%;"></div>
+              </div>
+              <span class="prob-text">${deal.prob}%</span>
+            </div>
+          </td>
+          <td style="color: var(--text-secondary); font-size: 12px;">${deal.date}</td>
+          <td>
+            <button class="action-btn" onclick="promoteDeal(${deal.id})">
+              ${deal.stage === '成約済み' ? '完了' : 'フェーズ昇格 ➔'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('countAll').innerText = deals.length;
+    }
+
+    // Filter Logic
+    function filterData() {
+      const selectedRep = document.getElementById('repFilter').value;
+      const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      let filtered = deals.filter(deal => {
+        // Rep Filter
+        const repMatch = (selectedRep === 'ALL' || deal.rep === selectedRep);
+        
+        // Search Filter
+        const textMatch = deal.company.toLowerCase().includes(searchKeyword) ||
+                          deal.project.toLowerCase().includes(searchKeyword);
+
+        // Stage Filter
+        let stageMatch = true;
+        if (currentStageFilter === '内諾/成約') {
+          stageMatch = (deal.stage === '成約済み' || deal.stage === '内諾');
+        } else if (currentStageFilter === '最終交渉') {
+          stageMatch = (deal.stage === '最終交渉');
+        } else if (currentStageFilter === '提案中') {
+          stageMatch = (deal.stage === '提案中');
+        }
+
+        return repMatch && textMatch && stageMatch;
+      });
+
+      renderTable(filtered);
+      recalculateKPIs(selectedRep);
+    }
+
+    // Recalculate KPIs and Charts based on active view
+    function recalculateKPIs(selectedRep) {
+      const targetDeals = (selectedRep === 'ALL') ? deals : deals.filter(d => d.rep === selectedRep);
+      
+      const wonSales = targetDeals.filter(d => d.stage === '成約済み').reduce((sum, d) => sum + d.amount, 0);
+      const totalPipeline = targetDeals.reduce((sum, d) => sum + d.amount, 0);
+
+      document.getElementById('kpiSales').innerText = formatYen(wonSales);
+      document.getElementById('kpiPipeline').innerText = formatYen(totalPipeline);
+
+      const remaining = Math.max(0, TARGET_SALES - wonSales);
+      document.getElementById('remainingText').innerText = formatYen(remaining);
+
+      const rate = ((wonSales / TARGET_SALES) * 100).toFixed(1);
+      document.getElementById('donutRateText').innerText = rate + '%';
+
+      // Update Gauge Chart
+      if (gaugeChart) {
+        gaugeChart.data.datasets[0].data = [wonSales, remaining];
+        gaugeChart.update();
+      }
+    }
+
+    // Stage Tab Switch
+    function setStageTab(stage, btn) {
+      currentStageFilter = stage;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterData();
+    }
+
+    // Modal Control
+    function openModal() {
+      document.getElementById('dealModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('dealModal').classList.remove('active');
+      document.getElementById('newDealForm').reset();
+    }
+
+    // Handle Create Deal
+    function handleCreateDeal(e) {
+      e.preventDefault();
+      const company = document.getElementById('modalCompany').value;
+      const project = document.getElementById('modalProject').value;
+      const rep = document.getElementById('modalRep').value;
+      const stage = document.getElementById('modalStage').value;
+      const amount = parseInt(document.getElementById('modalAmount').value);
+      const prob = parseInt(document.getElementById('modalProb').value);
+
+      const newDeal = {
+        id: Date.now(),
+        company,
+        project,
+        rep,
+        stage,
+        amount,
+        prob,
+        date: '2026/08/30'
+      };
+
+      deals.unshift(newDeal);
+      closeModal();
+      filterData();
+      showToast(`✨ 商談「${company}」を新規追加しました`);
+    }
+
+    // Promote Deal Stage Action
+    function promoteDeal(id) {
+      const deal = deals.find(d => d.id === id);
+      if (!deal) return;
+
+      if (deal.stage === '提案中') {
+        deal.stage = '最終交渉';
+        deal.prob = 75;
+        showToast(`🚀 ${deal.company} が「最終交渉」へ進捗しました！`);
+      } else if (deal.stage === '最終交渉') {
+        deal.stage = '内諾';
+        deal.prob = 90;
+        showToast(`🎉 ${deal.company} から「内諾」を獲得しました！`);
+      } else if (deal.stage === '内諾') {
+        deal.stage = '成約済み';
+        deal.prob = 100;
+        showToast(`🏆 【成約おめでとうございます！】${deal.company} (${formatYen(deal.amount)})`);
+      } else {
+        showToast(`✅ ${deal.company} は既に成約済みです`);
+      }
+
+      filterData();
+    }
+
+    // Toast Notification
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<i data-lucide="check-circle" style="color: var(--accent-emerald); width: 18px; height: 18px;"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      initCharts();
+      filterData();
+    });
+  </script>
+</body>
+</html>
