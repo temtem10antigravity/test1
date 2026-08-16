@@ -11,10 +11,9 @@
   
   <style>
     :root {
-      --bg-dark: #12131c;
-      --panel-bg: rgba(26, 29, 46, 0.92);
-      --slot-bg: rgba(18, 20, 32, 0.7);
-      --border-glow: rgba(120, 100, 255, 0.3);
+      --bg-dark: #0c0e17;
+      --panel-bg: rgba(22, 26, 44, 0.94);
+      --border-glow: rgba(0, 240, 255, 0.3);
       --text-main: #f0f2ff;
       --text-muted: #8b92b3;
       --accent-pink: #ff3377;
@@ -22,7 +21,7 @@
       --accent-yellow: #ffe600;
       --accent-purple: #9d4edd;
       --accent-green: #06d6a0;
-      --beat-speed: 0.5s; /* BPM120で0.5s */
+      --beat-speed: 0.5s;
     }
 
     * {
@@ -36,7 +35,7 @@
     body {
       font-family: 'Zen Maru Gothic', sans-serif;
       min-height: 100vh;
-      background: radial-gradient(circle at 50% 30%, #1f233a 0%, #0d0e15 100%);
+      background: radial-gradient(circle at 50% 20%, #171d33 0%, #08090f 100%);
       color: var(--text-main);
       display: flex;
       flex-direction: column;
@@ -48,12 +47,12 @@
     /* ヘッダー・ナビ */
     header {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1120px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      padding: 0 8px;
+      margin-bottom: 14px;
+      padding: 0 4px;
       flex-wrap: wrap;
       gap: 10px;
     }
@@ -65,8 +64,8 @@
       color: var(--accent-cyan);
       text-decoration: none;
       background: rgba(0, 240, 255, 0.1);
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      padding: 7px 16px;
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      padding: 8px 18px;
       border-radius: 20px;
       transition: all 0.2s;
       display: inline-flex;
@@ -75,7 +74,7 @@
     }
     .nav-btn:hover {
       background: rgba(0, 240, 255, 0.25);
-      box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
       transform: translateY(-1px);
     }
 
@@ -117,8 +116,8 @@
     }
     .bpm-btn.active {
       background: linear-gradient(135deg, var(--accent-cyan) 0%, #00b4d8 100%);
-      color: #0b111e;
-      box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+      color: #081220;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.65);
       font-weight: 900;
     }
 
@@ -139,7 +138,7 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: #444;
+      background: #3a3f58;
       transition: all 0.08s ease;
     }
     .beat-dot.active {
@@ -151,190 +150,248 @@
     /* メインゲームエリア */
     .game-wrapper {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1120px;
       background: var(--panel-bg);
       backdrop-filter: blur(16px);
       border-radius: 32px;
       border: 2px solid var(--border-glow);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(120, 100, 255, 0.15);
-      padding: 24px 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 240, 255, 0.15);
+      padding: 22px 20px;
       display: flex;
       flex-direction: column;
       gap: 20px;
       position: relative;
     }
 
-    /* ステージエリア（7つのキャラクタースロット） */
-    .stage-area {
+    /* ===================================================
+       スプランキー公式風 ステージエリア（背景絵 ＆ キャラ並び）
+       =================================================== */
+    .stage-container {
+      width: 100%;
+      border-radius: 26px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8), 0 10px 25px rgba(0, 0, 0, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      min-height: 310px;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    /* ステージ背景画（空・雲・緑の丘・ライティング） */
+    .stage-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #022338 0%, #04526d 38%, #087f8c 68%, #0ca694 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* 遠景の雲 */
+    .cloud-layer {
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      height: 90px;
+      background-repeat: repeat-x;
+      opacity: 0.75;
+      background-image: radial-gradient(circle at 50% 100%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 40%, transparent 70%);
+      filter: blur(1px);
+    }
+
+    /* 緑の丘（ベクターシェイプ） */
+    .hills-layer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 160px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ステージの暗がりビネット・ライティング */
+    .stage-vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 100%, transparent 40%, rgba(0, 0, 0, 0.45) 80%, rgba(0, 0, 0, 0.85) 100%),
+                  linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 35%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* ステージ上の7枠キャラクター並び */
+    .stage-characters-grid {
+      position: relative;
+      z-index: 10;
+      width: 100%;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 12px;
-      min-height: 240px;
-      background: var(--slot-bg);
-      border-radius: 24px;
-      padding: 18px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      align-items: end;
+      gap: 8px;
+      padding: 0 12px 14px;
+      align-items: flex-end;
     }
 
     @media (max-width: 860px) {
-      .stage-area {
+      .stage-characters-grid {
         grid-template-columns: repeat(4, 1fr);
       }
     }
     @media (max-width: 520px) {
-      .stage-area {
+      .stage-characters-grid {
         grid-template-columns: repeat(3, 1fr);
       }
     }
 
-    .slot {
-      height: 220px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 2px dashed rgba(255, 255, 255, 0.15);
-      border-radius: 20px;
+    /* 個別キャラクタースロット（立ち絵エリア） */
+    .char-stand-slot {
+      height: 270px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding: 10px 6px;
       position: relative;
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: pointer;
-    }
-
-    .slot.drag-over {
-      border-color: var(--accent-cyan);
-      background: rgba(0, 240, 255, 0.08);
-      transform: scale(1.03);
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-    }
-
-    .slot.active {
-      border-style: solid;
-      border-color: rgba(255, 255, 255, 0.3);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.08) 100%);
-    }
-
-    /* スロット内のデフォルト（空っぽ）影キャラ */
-    .empty-character {
-      width: 60px;
-      height: 90px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 30px 30px 10px 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-      border: 2px solid rgba(255, 255, 255, 0.12);
-      opacity: 0.5;
-      transition: all 0.2s;
-    }
-
-    .empty-eyes {
-      display: flex;
-      gap: 12px;
-    }
-    .empty-eye {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.4);
-    }
-
-    .slot-hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 700;
-      position: absolute;
-      bottom: 8px;
-    }
-
-    /* 演奏中のアクティブキャラクター */
-    .active-character-wrapper {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      position: relative;
-    }
-
-    .char-avatar {
-      width: 78px;
-      height: 78px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 20px;
-      object-fit: cover;
-      border: 3px solid #fff;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
-      margin-bottom: 12px;
-      transition: transform 0.1s ease;
-      background: #222;
+    }
+
+    .char-stand-slot:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .char-stand-slot.drag-over {
+      background: rgba(0, 240, 255, 0.15);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+      transform: scale(1.04);
+    }
+
+    /* スロット操作ボタン（ホバー時にキャラ頭上・足元に表示） */
+    .stand-controls {
+      position: absolute;
+      top: 6px;
+      display: flex;
+      gap: 6px;
+      z-index: 20;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: all 0.2s ease;
+    }
+    .char-stand-slot:hover .stand-controls {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .stand-ctrl-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(15, 17, 28, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.5rem;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
-
-    /* ビート同期アニメーション（BPMによって可変） */
-    .bouncing .char-avatar {
-      animation: beatBounce var(--beat-speed) infinite ease-in-out alternate;
+    .stand-ctrl-btn:hover {
+      transform: scale(1.2);
     }
+    .stand-ctrl-btn.remove:hover { background: #ff4757; }
+    .stand-ctrl-btn.mute.is-muted { background: #ffa502; color: #000; }
 
-    @keyframes beatBounce {
-      0% { transform: scale(1) translateY(0); }
-      100% { transform: scale(1.1) translateY(-10px); }
-    }
-
-    .char-name-label {
-      font-size: 0.75rem;
+    /* キャラクターネームラベル */
+    .stand-name-label {
+      font-size: 0.72rem;
       font-weight: 900;
       color: #fff;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 2px 8px;
-      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 3px 10px;
+      border-radius: 10px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 90%;
-      margin-bottom: 6px;
-    }
-
-    /* スロット操作ボタン（削除・ミュート） */
-    .slot-controls {
-      display: flex;
-      gap: 4px;
+      max-width: 95%;
       margin-top: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      text-align: center;
+      z-index: 15;
     }
 
-    .slot-ctrl-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      color: #fff;
-      font-size: 0.7rem;
-      cursor: pointer;
+    /* ===================================================
+       スプランキー 立ち絵スプライト ＆ ビートバウンス
+       =================================================== */
+    .sprunki-sprite-box {
+      width: 100%;
+      height: 220px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
-      transition: all 0.2s;
+      position: relative;
     }
-    .slot-ctrl-btn:hover {
-      transform: scale(1.15);
+
+    .sprunki-svg-character {
+      width: 100%;
+      max-width: 125px;
+      height: 215px;
+      transform-origin: bottom center;
+      transition: transform 0.1s ease;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
     }
-    .slot-ctrl-btn.remove:hover { background: #ff4757; }
-    .slot-ctrl-btn.mute.is-muted { background: #ffa502; color: #000; }
+
+    /* ビート同期アニメーション（BPMによって可変） */
+    .bouncing .sprunki-svg-character {
+      animation: sprunkiBounce var(--beat-speed) infinite ease-in-out alternate;
+    }
+
+    @keyframes sprunkiBounce {
+      0% {
+        transform: scale(1) translateY(0);
+      }
+      100% {
+        transform: scale(1.05, 0.96) translateY(-12px);
+      }
+    }
+
+    /* 待機キャラの息づかいアニメーション */
+    .idle-standby .sprunki-svg-character {
+      animation: idleBreathe 2.4s infinite ease-in-out alternate;
+      opacity: 0.65;
+    }
+
+    @keyframes idleBreathe {
+      0% { transform: scale(1) translateY(0); }
+      100% { transform: scale(1.02, 0.98) translateY(-4px); }
+    }
+
+    /* 自作OC画像付きキャラの場合 */
+    .custom-oc-avatar-frame {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      border: 3px solid #fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      object-fit: cover;
+      position: absolute;
+      top: 15px;
+      z-index: 5;
+    }
 
     /* 下部：キャラクターパレットトレイ */
     .palette-section {
-      background: rgba(18, 20, 32, 0.6);
+      background: rgba(14, 16, 26, 0.8);
       border-radius: 24px;
       padding: 18px 16px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.09);
     }
 
     .palette-header {
@@ -372,7 +429,7 @@
     /* キャラクターカード（パレット内） */
     .char-card {
       flex: 0 0 88px;
-      height: 116px;
+      height: 118px;
       background: rgba(255, 255, 255, 0.05);
       border: 2px solid rgba(255, 255, 255, 0.12);
       border-radius: 20px;
@@ -386,9 +443,9 @@
     }
 
     .char-card:hover {
-      transform: translateY(-6px) scale(1.05);
+      transform: translateY(-6px) scale(1.06);
       border-color: var(--accent-cyan);
-      box-shadow: 0 10px 20px rgba(0, 240, 255, 0.25);
+      box-shadow: 0 10px 22px rgba(0, 240, 255, 0.3);
     }
 
     .char-card:active {
@@ -407,7 +464,7 @@
       align-items: center;
       justify-content: center;
       font-size: 1.8rem;
-      background: #1e2235;
+      background: #171a29;
     }
 
     .char-card-name {
@@ -432,7 +489,6 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
-    /* 自作OCカードのアクションボタン（ファイル保存・削除） */
     .char-card-actions {
       position: absolute;
       top: 4px;
@@ -451,7 +507,7 @@
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      background: rgba(18, 20, 32, 0.9);
+      background: rgba(18, 20, 32, 0.95);
       border: 1px solid rgba(255, 255, 255, 0.3);
       color: #fff;
       font-size: 0.7rem;
@@ -476,7 +532,7 @@
     /* 新規OC作成ボタン */
     .create-oc-btn {
       flex: 0 0 88px;
-      height: 116px;
+      height: 118px;
       background: linear-gradient(135deg, rgba(255, 51, 119, 0.15) 0%, rgba(157, 78, 221, 0.15) 100%);
       border: 2px dashed var(--accent-pink);
       border-radius: 20px;
@@ -494,7 +550,7 @@
     }
     .create-oc-btn:hover {
       background: linear-gradient(135deg, rgba(255, 51, 119, 0.3) 0%, rgba(157, 78, 221, 0.3) 100%);
-      transform: translateY(-6px) scale(1.05);
+      transform: translateY(-6px) scale(1.06);
       box-shadow: 0 10px 20px rgba(255, 51, 119, 0.35);
     }
     .create-oc-btn .plus-icon {
@@ -505,7 +561,7 @@
     /* ファイル読込ボタン */
     .import-oc-btn {
       flex: 0 0 88px;
-      height: 116px;
+      height: 118px;
       background: linear-gradient(135deg, rgba(0, 240, 255, 0.12) 0%, rgba(6, 214, 160, 0.12) 100%);
       border: 2px dashed var(--accent-cyan);
       border-radius: 20px;
@@ -523,7 +579,7 @@
     }
     .import-oc-btn:hover {
       background: linear-gradient(135deg, rgba(0, 240, 255, 0.25) 0%, rgba(6, 214, 160, 0.25) 100%);
-      transform: translateY(-6px) scale(1.05);
+      transform: translateY(-6px) scale(1.06);
       box-shadow: 0 10px 20px rgba(0, 240, 255, 0.35);
     }
     .import-oc-btn .import-icon {
@@ -769,18 +825,35 @@
   </header>
 
   <main class="game-wrapper">
-    <!-- ステージエリア（7スロット） -->
-    <div class="stage-area" id="stageArea">
-      <!-- JSで7スロット生成 -->
+    <!-- スプランキー公式風 ステージエリア（パノラマ背景 ＆ キャラクター並び） -->
+    <div class="stage-container">
+      <!-- 背景グラフィック（空・雲・緑の丘） -->
+      <div class="stage-background">
+        <div class="cloud-layer"></div>
+        <svg class="hills-layer" viewBox="0 0 1200 200" preserveAspectRatio="none">
+          <!-- 遠くの濃い緑の丘 -->
+          <path d="M0,80 Q250,20 500,70 T1000,40 Q1120,70 1200,60 L1200,200 L0,200 Z" fill="#086338" opacity="0.85"/>
+          <!-- 中景の鮮やかな緑の丘 -->
+          <path d="M0,110 Q200,50 450,100 T900,80 Q1080,120 1200,90 L1200,200 L0,200 Z" fill="#14833b"/>
+          <!-- 手前の明るい緑の丘とステージフロア -->
+          <path d="M0,140 Q300,100 650,135 T1200,120 L1200,200 L0,200 Z" fill="#20a142"/>
+        </svg>
+        <div class="stage-vignette"></div>
+      </div>
+
+      <!-- 7人のキャラクタースロット（背景の上に並列配置） -->
+      <div class="stage-characters-grid" id="stageGrid">
+        <!-- JSで7体のスプランキー立ち絵スロットを生成 -->
+      </div>
     </div>
 
     <!-- キャラクターパレット（一覧 ＆ OC追加/読込ボタン） -->
     <section class="palette-section">
       <div class="palette-header">
         <div class="palette-title">
-          <span>🎨 キャラクターを選んでスロットに置こう！</span>
+          <span>🎨 キャラクターを選んでステージに立たせよう！</span>
         </div>
-        <span style="font-size: 0.8rem; color: var(--text-muted);">（ドラッグまたはクリックで配置 / 自作OCは自動保存されます）</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">（ドラッグ＆ドロップまたはクリックでステージに配置）</span>
       </div>
 
       <div class="palette-grid" id="paletteGrid">
@@ -814,7 +887,7 @@
       </div>
 
       <div class="ctrl-group">
-        <span style="font-size: 0.85rem; color: var(--text-muted);">💾 自作OCはブラウザに自動保存＆「💾」でPCにファイル書き出し可能！</span>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">✨ 背景絵の上にキャラたちが並んでビートに合わせて歌います！</span>
       </div>
     </div>
   </main>
@@ -950,7 +1023,7 @@
     function audioBufferToWavArrayBuffer(buffer) {
       const numChannels = buffer.numberOfChannels;
       const sampleRate = buffer.sampleRate;
-      const format = 1; // PCM
+      const format = 1;
       const bitDepth = 16;
       const bytesPerSample = bitDepth / 8;
       const blockAlign = numChannels * bytesPerSample;
@@ -1003,6 +1076,215 @@
       }, 3000);
     }
 
+    // --- スプランキー ベクター立ち絵グラフィック生成 ---
+    function getSprunkiCharacterSVG(char, isStandby = false) {
+      if (isStandby) {
+        // 待機中グレー素体キャラ（瞬き・おだやかな呼吸）
+        return `
+          <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+            <!-- 胴体 -->
+            <path d="M45,130 Q40,180 32,220 L88,220 Q80,180 75,130 Z" fill="#4d5366" stroke="#2b2f3d" stroke-width="4"/>
+            <!-- 首 -->
+            <rect x="52" y="110" width="16" height="25" rx="5" fill="#585f75" stroke="#2b2f3d" stroke-width="3"/>
+            <!-- 頭部 -->
+            <ellipse cx="60" cy="72" rx="44" ry="44" fill="#606780" stroke="#2b2f3d" stroke-width="4.5"/>
+            <!-- 白目 -->
+            <circle cx="44" cy="72" r="14" fill="#ffffff" stroke="#2b2f3d" stroke-width="3.5"/>
+            <circle cx="76" cy="72" r="14" fill="#ffffff" stroke="#2b2f3d" stroke-width="3.5"/>
+            <!-- 黒目（待機） -->
+            <circle cx="44" cy="72" r="6.5" fill="#1b1c24"/>
+            <circle cx="76" cy="72" r="6.5" fill="#1b1c24"/>
+            <circle cx="42" cy="70" r="2" fill="#fff"/>
+            <circle cx="74" cy="70" r="2" fill="#fff"/>
+            <!-- お口 -->
+            <path d="M53,96 Q60,100 67,96" fill="none" stroke="#2b2f3d" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        `;
+      }
+
+      // 自作OCで画像がある場合
+      if (char.image) {
+        const bodyColor = char.color || "#ff3377";
+        return `
+          <div class="sprunki-sprite-box">
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="${bodyColor}" stroke="#111" stroke-width="4"/>
+              <rect x="52" y="110" width="16" height="25" rx="5" fill="${bodyColor}" stroke="#111" stroke-width="3"/>
+              <ellipse cx="60" cy="72" rx="44" ry="44" fill="${bodyColor}" stroke="#111" stroke-width="4.5"/>
+            </svg>
+            <img src="${char.image}" class="custom-oc-avatar-frame" style="border-color:${bodyColor};" alt="OC">
+          </div>
+        `;
+      }
+
+      // デフォルトキャラクター固有のスプランキー立ち絵
+      switch (char.id) {
+        case "kick_snare": // Oren / カラフルプロペラキャップ
+          return `
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <!-- プロペラ・リボン -->
+              <rect x="57" y="12" width="6" height="14" fill="#9d4edd" stroke="#111" stroke-width="2"/>
+              <polygon points="40,14 60,8 80,14 60,18" fill="#ff3377" stroke="#111" stroke-width="2"/>
+              <!-- カラフルキャップ -->
+              <path d="M22,60 Q60,18 98,60 Z" fill="#ff7b00" stroke="#111" stroke-width="4"/>
+              <path d="M38,55 Q60,22 60,60 Z" fill="#00f0ff" opacity="0.9"/>
+              <path d="M60,22 Q82,55 82,60 Z" fill="#ffe600" opacity="0.9"/>
+              <path d="M18,60 Q60,68 102,60 Q106,66 98,70 Q60,76 22,70 Z" fill="#06d6a0" stroke="#111" stroke-width="3.5"/>
+              <!-- 胴体 -->
+              <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#e8e8e8" stroke="#111" stroke-width="4"/>
+              <!-- 首 -->
+              <rect x="52" y="110" width="16" height="25" rx="5" fill="#d0d0d0" stroke="#111" stroke-width="3"/>
+              <!-- 頭部 -->
+              <ellipse cx="60" cy="80" rx="42" ry="38" fill="#f0f0f0" stroke="#111" stroke-width="4.5"/>
+              <!-- 大きな丸目 -->
+              <circle cx="42" cy="78" r="16" fill="#111" stroke="#111" stroke-width="2"/>
+              <circle cx="78" cy="78" r="16" fill="#111" stroke="#111" stroke-width="2"/>
+              <circle cx="44" cy="75" r="5" fill="#ffffff"/>
+              <circle cx="80" cy="75" r="5" fill="#ffffff"/>
+              <!-- ドヤ顔お口 -->
+              <path d="M48,102 Q60,112 72,102" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          `;
+
+        case "hihat": // Sky / シアンヘッドホン・バイザー
+          return `
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <!-- ヘッドホンバンド -->
+              <path d="M16,70 Q60,10 104,70" fill="none" stroke="#0077b6" stroke-width="9" stroke-linecap="round"/>
+              <!-- ヘッドホンイヤーカップ -->
+              <rect x="8" y="55" width="16" height="34" rx="8" fill="#00b4d8" stroke="#111" stroke-width="3.5"/>
+              <rect x="96" y="55" width="16" height="34" rx="8" fill="#00b4d8" stroke="#111" stroke-width="3.5"/>
+              <!-- 胴体 -->
+              <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#00f0ff" stroke="#111" stroke-width="4"/>
+              <!-- 首 -->
+              <rect x="52" y="110" width="16" height="25" rx="5" fill="#00c8e0" stroke="#111" stroke-width="3"/>
+              <!-- 頭部 -->
+              <ellipse cx="60" cy="72" rx="42" ry="42" fill="#48cae4" stroke="#111" stroke-width="4.5"/>
+              <!-- スタイリッシュアイ -->
+              <ellipse cx="43" cy="72" rx="14" ry="12" fill="#fff" stroke="#111" stroke-width="3.5"/>
+              <ellipse cx="77" cy="72" rx="14" ry="12" fill="#fff" stroke="#111" stroke-width="3.5"/>
+              <circle cx="43" cy="72" r="7" fill="#03045e"/>
+              <circle cx="77" cy="72" r="7" fill="#03045e"/>
+              <circle cx="40" cy="69" r="2.5" fill="#fff"/>
+              <circle cx="74" cy="69" r="2.5" fill="#fff"/>
+              <!-- お口（ビート刻み） -->
+              <ellipse cx="60" cy="95" rx="7" ry="5" fill="#111"/>
+            </svg>
+          `;
+
+        case "bass": // Vineria / パープルヘイロー（天使の輪）
+          return `
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <!-- 浮遊する天使の輪（ヘイロー） -->
+              <ellipse cx="40" cy="24" rx="26" ry="9" fill="none" stroke="#e0aaff" stroke-width="5" transform="rotate(-15 40 24)"/>
+              <ellipse cx="40" cy="24" rx="26" ry="9" fill="none" stroke="#ffffff" stroke-width="2" transform="rotate(-15 40 24)"/>
+              <!-- 胴体 -->
+              <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#7b2cbf" stroke="#111" stroke-width="4"/>
+              <!-- 首 -->
+              <rect x="52" y="110" width="16" height="25" rx="5" fill="#5a189a" stroke="#111" stroke-width="3"/>
+              <!-- 頭部 -->
+              <ellipse cx="60" cy="72" rx="43" ry="43" fill="#c77dff" stroke="#111" stroke-width="4.5"/>
+              <!-- 半開き・チルな目元 -->
+              <ellipse cx="43" cy="72" rx="14" ry="13" fill="#fff" stroke="#111" stroke-width="3.5"/>
+              <ellipse cx="77" cy="72" rx="14" ry="13" fill="#fff" stroke="#111" stroke-width="3.5"/>
+              <path d="M29,66 Q43,62 57,66 Z" fill="#9d4edd" stroke="#111" stroke-width="2.5"/>
+              <path d="M63,66 Q77,62 91,66 Z" fill="#9d4edd" stroke="#111" stroke-width="2.5"/>
+              <circle cx="43" cy="74" r="6" fill="#240046"/>
+              <circle cx="77" cy="74" r="6" fill="#240046"/>
+              <!-- クールな微笑み -->
+              <path d="M50,96 Q62,104 70,95" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+          `;
+
+        case "synth": // Garnold / ゴールドアンテナ
+          return `
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <!-- トップアンテナ -->
+              <path d="M60,32 L60,8" stroke="#cca000" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="60" cy="8" r="11" fill="#ffe600" stroke="#111" stroke-width="3.5"/>
+              <circle cx="58" cy="6" r="3" fill="#fff"/>
+              <!-- 胴体 -->
+              <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#e5a100" stroke="#111" stroke-width="4"/>
+              <!-- 首 -->
+              <rect x="52" y="110" width="16" height="25" rx="5" fill="#cca000" stroke="#111" stroke-width="3"/>
+              <!-- 頭部 -->
+              <ellipse cx="60" cy="72" rx="43" ry="43" fill="#ffc300" stroke="#111" stroke-width="4.5"/>
+              <!-- まったり半目 -->
+              <ellipse cx="43" cy="72" rx="14" ry="13" fill="#fff" stroke="#111" stroke-width="3.5"/>
+              <ellipse cx="77" cy="72" rx="14" ry="13" fill="#fff" stroke="#111" stroke-width="3.5"/>
+              <path d="M29,67 L57,67 Z" fill="#cca000" stroke="#111" stroke-width="3"/>
+              <path d="M63,67 L91,67 Z" fill="#cca000" stroke="#111" stroke-width="3"/>
+              <circle cx="43" cy="75" r="6" fill="#111"/>
+              <circle cx="77" cy="75" r="6" fill="#111"/>
+              <!-- まったり口 -->
+              <path d="M52,96 L68,96" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+          `;
+
+        case "sparkle": // Raddy / ピンクウーパールーパー＆サングラス
+          return `
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <!-- ウーパールーパーの耳ヒレ -->
+              <path d="M18,65 Q0,45 8,78 Q-5,85 16,92 Z" fill="#ff758f" stroke="#111" stroke-width="3"/>
+              <path d="M102,65 Q120,45 112,78 Q125,85 104,92 Z" fill="#ff758f" stroke="#111" stroke-width="3"/>
+              <!-- 胴体 -->
+              <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#ff4d6d" stroke="#111" stroke-width="4"/>
+              <!-- 首 -->
+              <rect x="52" y="110" width="16" height="25" rx="5" fill="#c9184a" stroke="#111" stroke-width="3"/>
+              <!-- 頭部 -->
+              <ellipse cx="60" cy="72" rx="43" ry="41" fill="#ff758f" stroke="#111" stroke-width="4.5"/>
+              <!-- クールな黒サングラス -->
+              <polygon points="22,60 56,60 52,82 28,82" fill="#111111" stroke="#000" stroke-width="2"/>
+              <polygon points="64,60 98,60 92,82 68,82" fill="#111111" stroke="#000" stroke-width="2"/>
+              <rect x="53" y="62" width="14" height="6" fill="#111"/>
+              <line x1="32" y1="64" x2="32" y2="78" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>
+              <line x1="74" y1="64" x2="74" y2="78" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>
+              <!-- スマイル -->
+              <path d="M50,96 Q60,104 70,96" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+          `;
+
+        case "voice": // Gray Cat / ホワイトキャットイヤー＆フーディ
+          return `
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <!-- ネコミミ -->
+              <polygon points="26,45 16,10 46,30" fill="#e8e8e8" stroke="#111" stroke-width="3.5"/>
+              <polygon points="28,40 22,20 42,32" fill="#ffb3c1"/>
+              <polygon points="94,45 104,10 74,30" fill="#e8e8e8" stroke="#111" stroke-width="3.5"/>
+              <polygon points="92,40 98,20 78,32" fill="#ffb3c1"/>
+              <!-- 胴体＆フーディ -->
+              <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#6c757d" stroke="#111" stroke-width="4"/>
+              <!-- フードの襟 -->
+              <path d="M38,110 Q60,126 82,110 Q90,122 60,128 Q30,122 38,110 Z" fill="#adb5bd" stroke="#111" stroke-width="3"/>
+              <!-- 頭部 -->
+              <ellipse cx="60" cy="72" rx="43" ry="41" fill="#f8f9fa" stroke="#111" stroke-width="4.5"/>
+              <!-- クリクリおめめ -->
+              <circle cx="43" cy="72" r="16" fill="#111"/>
+              <circle cx="77" cy="72" r="16" fill="#111"/>
+              <circle cx="45" cy="69" r="5" fill="#fff"/>
+              <circle cx="79" cy="69" r="5" fill="#fff"/>
+              <!-- ニャンコのお口 -->
+              <path d="M52,94 Q56,98 60,94 Q64,98 68,94" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+          `;
+
+        default:
+          const fallbackColor = char.color || "#9d4edd";
+          return `
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="${fallbackColor}" stroke="#111" stroke-width="4"/>
+              <rect x="52" y="110" width="16" height="25" rx="5" fill="${fallbackColor}" stroke="#111" stroke-width="3"/>
+              <ellipse cx="60" cy="72" rx="43" ry="43" fill="${fallbackColor}" stroke="#111" stroke-width="4.5"/>
+              <circle cx="43" cy="72" r="14" fill="#fff" stroke="#111" stroke-width="3"/>
+              <circle cx="77" cy="72" r="14" fill="#fff" stroke="#111" stroke-width="3"/>
+              <circle cx="43" cy="72" r="6" fill="#111"/>
+              <circle cx="77" cy="72" r="6" fill="#111"/>
+              <path d="M50,96 Q60,105 70,96" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+          `;
+      }
+    }
+
     // --- Web Audio API & サウンドエンジン ---
     let audioCtx = null;
     let isPlaying = true;
@@ -1026,12 +1308,11 @@
         id: "kick_snare",
         name: "キックドラム",
         type: "BEAT",
-        color: "#ff3377",
-        icon: "🥁",
+        color: "#ff7b00",
+        icon: "🧢",
         isDefault: true,
         play: (time, beat) => {
           if (beat % 2 === 0) {
-            // Kick
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.frequency.setValueAtTime(140, time);
@@ -1043,7 +1324,6 @@
             osc.start(time);
             osc.stop(time + 0.25);
           } else {
-            // Snare
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = "triangle";
@@ -1062,7 +1342,7 @@
         name: "ハイハット",
         type: "BEAT",
         color: "#00f0ff",
-        icon: "🎩",
+        icon: "🎧",
         isDefault: true,
         play: (time, beat) => {
           [0, 0.25].forEach(offset => {
@@ -1084,10 +1364,10 @@
         name: "ベースライン",
         type: "BASS",
         color: "#9d4edd",
-        icon: "🎸",
+        icon: "😇",
         isDefault: true,
         play: (time, beat) => {
-          const notes = [65.41, 73.42, 82.41, 98.00]; // C2, D2, E2, G2
+          const notes = [65.41, 73.42, 82.41, 98.00];
           const freq = notes[beat % 4];
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -1106,14 +1386,14 @@
         name: "パステルシンセ",
         type: "MELODY",
         color: "#ffe600",
-        icon: "🎹",
+        icon: "🤖",
         isDefault: true,
         play: (time, beat) => {
           const chordNotes = [
-            [523.25, 659.25], // C5, E5
-            [587.33, 698.46], // D5, F5
-            [659.25, 783.99], // E5, G5
-            [523.25, 783.99]  // C5, G5
+            [523.25, 659.25],
+            [587.33, 698.46],
+            [659.25, 783.99],
+            [523.25, 783.99]
           ];
           const freqs = chordNotes[beat % 4];
           freqs.forEach(f => {
@@ -1134,8 +1414,8 @@
         id: "sparkle",
         name: "キラキラベル",
         type: "EFFECT",
-        color: "#06d6a0",
-        icon: "✨",
+        color: "#ff4d6d",
+        icon: "🕶️",
         isDefault: true,
         play: (time, beat) => {
           if (beat % 2 === 0) {
@@ -1158,8 +1438,8 @@
         id: "voice",
         name: "スプランキーボイス",
         type: "VOICE",
-        color: "#ff9f1c",
-        icon: "🎤",
+        color: "#adb5bd",
+        icon: "🐱",
         isDefault: true,
         play: (time, beat) => {
           const osc = audioCtx.createOscillator();
@@ -1177,7 +1457,6 @@
       }
     ];
 
-    // キャラクターリスト（デフォルト + IndexedDBから復元したOC）
     let customCharacters = [];
     let allCharacters = [...DEFAULT_CHARACTERS];
 
@@ -1188,7 +1467,7 @@
     }));
 
     // DOM要素
-    const stageArea = document.getElementById("stageArea");
+    const stageGrid = document.getElementById("stageGrid");
     const paletteGrid = document.getElementById("paletteGrid");
     const playPauseBtn = document.getElementById("playPauseBtn");
     const playIcon = document.getElementById("playIcon");
@@ -1208,7 +1487,6 @@
       currentBPM = parseInt(newBpm, 10);
       bpmDisplay.textContent = `BPM ${currentBPM}`;
 
-      // ボタンのアクティブ状態更新
       bpmButtons.forEach(btn => {
         if (parseInt(btn.dataset.bpm, 10) === currentBPM) {
           btn.classList.add("active");
@@ -1217,11 +1495,9 @@
         }
       });
 
-      // CSSアニメーション速度（ビートに同期）
       const beatDurationSec = (60 / currentBPM);
       document.documentElement.style.setProperty('--beat-speed', `${beatDurationSec}s`);
 
-      // シーケンサーのタイマー再起動
       if (loopInterval) {
         clearInterval(loopInterval);
         loopInterval = setInterval(stepBeat, beatDurationSec * 1000);
@@ -1237,29 +1513,28 @@
       });
     });
 
-    // --- ステージスロット描画 ---
+    // --- ステージ描画（背景絵 ＆ スプランキー立ち絵） ---
     function renderStage() {
-      stageArea.innerHTML = "";
+      stageGrid.innerHTML = "";
       slotStates.forEach((slot, index) => {
         const slotEl = document.createElement("div");
-        slotEl.className = `slot ${slot.character ? "active bouncing" : ""}`;
+        const isPlaced = !!slot.character;
+        slotEl.className = `char-stand-slot ${isPlaced ? "bouncing" : "idle-standby"}`;
         slotEl.dataset.slotIndex = index;
 
-        if (slot.character) {
+        if (isPlaced) {
           const char = slot.character;
           slotEl.innerHTML = `
-            <div class="active-character-wrapper">
-              <div class="char-avatar" style="border-color: ${char.color || '#ff3377'}">
-                ${char.image ? `<img src="${char.image}" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">` : char.icon}
-              </div>
-              <div class="char-name-label">${char.name}</div>
-              <div class="slot-controls">
-                <button class="slot-ctrl-btn mute ${slot.isMuted ? 'is-muted' : ''}" title="ミュート">
-                  ${slot.isMuted ? '🔇' : '🔊'}
-                </button>
-                <button class="slot-ctrl-btn remove" title="外す">✕</button>
-              </div>
+            <div class="stand-controls">
+              <button class="stand-ctrl-btn mute ${slot.isMuted ? 'is-muted' : ''}" title="ミュート">
+                ${slot.isMuted ? '🔇' : '🔊'}
+              </button>
+              <button class="stand-ctrl-btn remove" title="退場">✕</button>
             </div>
+            <div class="sprunki-sprite-box">
+              ${getSprunkiCharacterSVG(char, false)}
+            </div>
+            <div class="stand-name-label" style="border-color:${char.color || '#fff'}">${char.name}</div>
           `;
 
           // ミュートボタン
@@ -1269,22 +1544,19 @@
             renderStage();
           });
 
-          // 外すボタン
+          // 退場ボタン
           slotEl.querySelector(".remove").addEventListener("click", (e) => {
             e.stopPropagation();
             slot.character = null;
             renderStage();
           });
         } else {
-          // 空きスロット
+          // 待機中グレー素体キャラ
           slotEl.innerHTML = `
-            <div class="empty-character">
-              <div class="empty-eyes">
-                <div class="empty-eye"></div>
-                <div class="empty-eye"></div>
-              </div>
+            <div class="sprunki-sprite-box">
+              ${getSprunkiCharacterSVG(null, true)}
             </div>
-            <div class="slot-hint">枠 ${index + 1}</div>
+            <div class="stand-name-label" style="opacity: 0.6;">枠 ${index + 1}</div>
           `;
         }
 
@@ -1308,13 +1580,12 @@
           }
         });
 
-        stageArea.appendChild(slotEl);
+        stageGrid.appendChild(slotEl);
       });
     }
 
     // --- パレット描画 ---
     function renderPalette() {
-      // 既存のキャラカードを削除
       const cards = paletteGrid.querySelectorAll(".char-card");
       cards.forEach(c => c.remove());
 
@@ -1324,7 +1595,6 @@
         card.draggable = true;
         card.dataset.charId = char.id;
 
-        // 自作OCならファイル保存・削除ボタンを追加
         let actionButtonsHtml = "";
         if (!char.isDefault) {
           actionButtonsHtml = `
@@ -1344,14 +1614,11 @@
           <div class="char-card-name">${char.name}</div>
         `;
 
-        // ドラッグ開始
         card.addEventListener("dragstart", (e) => {
           e.dataTransfer.setData("text/plain", char.id);
         });
 
-        // クリックで最初の空きスロットに配置
         card.addEventListener("click", (e) => {
-          // アクションボタンのクリックは配置しない
           if (e.target.closest(".char-action-btn")) return;
           initAudio();
           const firstEmpty = slotStates.find(s => !s.character);
@@ -1361,7 +1628,6 @@
           }
         });
 
-        // ファイルエクスポート
         const exportBtn = card.querySelector(".export");
         if (exportBtn) {
           exportBtn.addEventListener("click", (e) => {
@@ -1370,7 +1636,6 @@
           });
         }
 
-        // キャラ削除
         const deleteBtn = card.querySelector(".delete");
         if (deleteBtn) {
           deleteBtn.addEventListener("click", async (e) => {
@@ -1385,7 +1650,7 @@
       });
     }
 
-    // --- キャラクターのファイルエクスポート（ダウンロード） ---
+    // --- キャラクターのファイルエクスポート ---
     function exportCharacterToFile(char) {
       let audioBase64 = "";
       if (char.rawAudioBuffer) {
@@ -1419,7 +1684,7 @@
       showToast(`💾 「${char.name}」をファイル保存しました！`);
     }
 
-    // --- キャラクターのファイルインポート（読み込み） ---
+    // --- キャラクターのファイルインポート ---
     async function importCharacterFile(file) {
       try {
         const text = await file.text();
@@ -1437,7 +1702,6 @@
           rawAudioBuffer = base64ToArrayBuffer(data.audioBase64);
           decodedAudioBuffer = await audioCtx.decodeAudioData(rawAudioBuffer.slice(0));
         } else {
-          // デフォルトシンセ音生成
           decodedAudioBuffer = createDefaultSynthBuffer();
           rawAudioBuffer = audioBufferToWavArrayBuffer(decodedAudioBuffer);
         }
@@ -1454,9 +1718,7 @@
           createdAt: Date.now()
         };
 
-        // IndexedDBに保存
         await dbSaveCharacter(newOc);
-
         customCharacters.push(newOc);
         allCharacters.push(newOc);
         renderPalette();
@@ -1474,7 +1736,6 @@
       customCharacters = customCharacters.filter(c => c.id !== id);
       allCharacters = [...DEFAULT_CHARACTERS, ...customCharacters];
 
-      // ステージスロットに配置されていたら外す
       slotStates.forEach(slot => {
         if (slot.character && slot.character.id === id) {
           slot.character = null;
@@ -1486,7 +1747,6 @@
       showToast("🗑️ キャラクターを削除しました");
     }
 
-    // デフォルトのシンセ音作成ヘルパー
     function createDefaultSynthBuffer() {
       const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.3, audioCtx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -1504,20 +1764,17 @@
       const time = audioCtx.currentTime;
       const beatInBar = currentBeat % 4;
 
-      // ビートインジケーター（LED）
       dots.forEach((dot, i) => {
         if (i === beatInBar) dot.classList.add("active");
         else dot.classList.remove("active");
       });
 
-      // 各スロットの音を鳴らす
       slotStates.forEach(slot => {
         if (slot.character && !slot.isMuted) {
           const char = slot.character;
           if (char.isDefault && char.play) {
             char.play(time, currentBeat);
           } else if (char.audioBuffer) {
-            // カスタムOCの音声（毎拍または毎小節鳴らす）
             const src = audioCtx.createBufferSource();
             src.buffer = char.audioBuffer;
             src.connect(audioCtx.destination);
@@ -1529,10 +1786,8 @@
       currentBeat++;
     }
 
-    // シーケンサー開始
     loopInterval = setInterval(stepBeat, (60 / currentBPM) * 1000);
 
-    // 再生 / 一時停止
     playPauseBtn.addEventListener("click", () => {
       isPlaying = !isPlaying;
       if (isPlaying) {
@@ -1546,7 +1801,6 @@
       }
     });
 
-    // 全員退場
     clearAllBtn.addEventListener("click", () => {
       slotStates.forEach(s => s.character = null);
       renderStage();
@@ -1577,7 +1831,6 @@
     let audioChunks = [];
     let isRecording = false;
 
-    // ファイル読込ボタン
     importOcBtn.addEventListener("click", () => importFileInput.click());
     importFileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -1587,7 +1840,6 @@
       importFileInput.value = "";
     });
 
-    // ドラッグ＆ドロップでのファイル読込対応
     window.addEventListener("dragover", (e) => e.preventDefault());
     window.addEventListener("drop", (e) => {
       e.preventDefault();
@@ -1600,7 +1852,6 @@
       }
     });
 
-    // モーダル開閉
     openModalBtn.addEventListener("click", () => {
       ocModal.classList.add("open");
       uploadedImageData = null;
@@ -1613,7 +1864,6 @@
     });
     closeModalBtn.addEventListener("click", () => ocModal.classList.remove("open"));
 
-    // 画像アップロード
     imageDropArea.addEventListener("click", () => imageInput.click());
     imageInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -1628,7 +1878,6 @@
       }
     });
 
-    // 音声ファイルアップロード
     audioDropArea.addEventListener("click", () => audioInput.click());
     audioInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
@@ -1640,7 +1889,6 @@
       }
     });
 
-    // マイク録音
     recBtn.addEventListener("click", async () => {
       initAudio();
       if (!isRecording) {
@@ -1674,12 +1922,10 @@
       }
     });
 
-    // OC登録＆IndexedDB保存
     saveOcBtn.addEventListener("click", async () => {
       initAudio();
       const name = ocNameInput.value.trim() || "マイキャラ";
 
-      // 音声が未設定の場合はデフォルト音声を自動合成＆WAV化
       if (!customAudioBuffer) {
         customAudioBuffer = createDefaultSynthBuffer();
         customRawAudioBuffer = audioBufferToWavArrayBuffer(customAudioBuffer);
@@ -1697,7 +1943,6 @@
         createdAt: Date.now()
       };
 
-      // IndexedDBに自動保存
       try {
         await dbSaveCharacter(newOc);
       } catch (err) {
@@ -1712,7 +1957,7 @@
       showToast(`✨ キャラ「${newOc.name}」を登録＆ブラウザ保存しました！`);
     });
 
-    // --- アプリ初期化（IndexedDBからキャラ復元） ---
+    // --- アプリ初期化 ---
     async function initApp() {
       try {
         const savedOCs = await dbLoadCharacters();
@@ -1741,7 +1986,6 @@
       renderPalette();
     }
 
-    // 初回ロード
     initApp();
   </script>
 </body>
