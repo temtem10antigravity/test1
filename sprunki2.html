@@ -672,6 +672,7 @@
       transition: all 0.15s ease;
     }
     .char-action-btn:hover { transform: scale(1.2); }
+    .char-action-btn.edit:hover { background: #ffe600; color: #000; }
     .char-action-btn.export:hover { background: var(--accent-cyan); color: #000; }
     .char-action-btn.delete:hover { background: #ff4757; color: #fff; }
 
@@ -1062,10 +1063,10 @@
   <!-- トースト通知コンテナ -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- OC作成モーダル -->
+  <!-- OC作成・編集モーダル -->
   <div class="modal-overlay" id="ocModal">
     <div class="modal-box">
-      <h2 class="modal-title">✨ 新しいオリジナルキャラ（OC）を作る</h2>
+      <h2 class="modal-title" id="modalTitle">✨ 新しいオリジナルキャラ（OC）を作る</h2>
 
       <div class="form-group">
         <label class="form-label">キャラクター名</label>
@@ -1075,10 +1076,11 @@
       <div class="form-group">
         <label class="form-label">キャラクター画像（PNG / JPG / GIF）</label>
         <div class="file-drop-area" id="imageDropArea">
-          <span>📁 クリックして画像ファイルを選択</span>
+          <span id="imageDropText">📁 クリックして画像ファイルを選択</span>
           <input type="file" id="imageInput" accept="image/*" style="display: none;">
           <img id="imagePreview" class="preview-box" alt="preview">
         </div>
+        <div id="imageKeepHint" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:none;">※新しい画像をアップロードしない場合は、現在の画像がそのまま保持されます</div>
       </div>
 
       <div class="form-group">
@@ -1087,10 +1089,16 @@
           <span id="audioStatusText">🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)</span>
           <input type="file" id="audioInput" accept="audio/*" style="display: none;">
         </div>
+        <div id="audioKeepHint" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:none;">※新しい音声をアップロード/録音しない場合は、現在の音声がそのまま保持されます</div>
+        
         <div class="record-box">
           <button type="button" class="rec-btn" id="recBtn">
             <span>🎙️</span>
             <span id="recBtnText">マイクで自分の声を録音</span>
+          </button>
+          <button type="button" class="rec-btn" id="previewAudioBtn" style="display:none; background:rgba(0,240,255,0.15); border-color:var(--accent-cyan);">
+            <span>▶️</span>
+            <span>現在の音声を試聴</span>
           </button>
           <span id="recStatus" style="font-size: 0.75rem; color: var(--accent-yellow);"></span>
         </div>
@@ -2216,11 +2224,12 @@
         card.dataset.charId = char.id;
 
         let actionButtonsHtml = "";
-        if (!char.isDefault) {
+        if (!char.isDefault || char.id === "pbm70") {
           actionButtonsHtml = `
             <div class="char-card-actions">
+              <button class="char-action-btn edit" title="画像・音声を編集">✏️</button>
               <button class="char-action-btn export" title="ファイルに保存 (.sprunki)">💾</button>
-              <button class="char-action-btn delete" title="キャラを削除">🗑️</button>
+              ${!char.isDefault ? '<button class="char-action-btn delete" title="キャラを削除">🗑️</button>' : ''}
             </div>
           `;
         }
@@ -2249,6 +2258,14 @@
             renderStage();
           }
         });
+
+        const editBtn = card.querySelector(".edit");
+        if (editBtn) {
+          editBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openEditModal(char);
+          });
+        }
 
         const exportBtn = card.querySelector(".export");
         if (exportBtn) {
@@ -2436,24 +2453,30 @@
       renderStage();
     });
 
-    // --- 自作OC作成モーダル ＆ 録音処理 ---
+    // --- 自作OC作成・編集モーダル ＆ 録音処理 ---
     const ocModal = document.getElementById("ocModal");
     const openModalBtn = document.getElementById("openModalBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
     const saveOcBtn = document.getElementById("saveOcBtn");
+    const modalTitle = document.getElementById("modalTitle");
     const ocNameInput = document.getElementById("ocName");
     const imageDropArea = document.getElementById("imageDropArea");
+    const imageDropText = document.getElementById("imageDropText");
+    const imageKeepHint = document.getElementById("imageKeepHint");
     const imageInput = document.getElementById("imageInput");
     const imagePreview = document.getElementById("imagePreview");
     const audioDropArea = document.getElementById("audioDropArea");
     const audioInput = document.getElementById("audioInput");
     const audioStatusText = document.getElementById("audioStatusText");
+    const audioKeepHint = document.getElementById("audioKeepHint");
+    const previewAudioBtn = document.getElementById("previewAudioBtn");
     const recBtn = document.getElementById("recBtn");
     const recBtnText = document.getElementById("recBtnText");
     const recStatus = document.getElementById("recStatus");
     const importOcBtn = document.getElementById("importOcBtn");
     const importFileInput = document.getElementById("importFileInput");
 
+    let currentEditingCharId = null;
     let uploadedImageData = null;
     let customAudioBuffer = null;
     let customRawAudioBuffer = null;
@@ -2482,17 +2505,94 @@
       }
     });
 
+    // 新規作成モーダルオープン
     openModalBtn.addEventListener("click", () => {
-      ocModal.classList.add("open");
+      initAudio();
+      currentEditingCharId = null;
       uploadedImageData = null;
       customAudioBuffer = null;
       customRawAudioBuffer = null;
+
+      modalTitle.textContent = "✨ 新しいオリジナルキャラ（OC）を作る";
+      saveOcBtn.textContent = "ブラウザに登録・保存！";
       ocNameInput.value = "";
       imagePreview.style.display = "none";
+      imageDropText.textContent = "📁 クリックして画像ファイルを選択";
+      imageKeepHint.style.display = "none";
       audioStatusText.textContent = "🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)";
+      audioKeepHint.style.display = "none";
+      previewAudioBtn.style.display = "none";
       recStatus.textContent = "";
+      ocModal.classList.add("open");
     });
+
+    // 編集モーダルオープン
+    function openEditModal(char) {
+      initAudio();
+      currentEditingCharId = char.id;
+      uploadedImageData = null;
+      customAudioBuffer = null;
+      customRawAudioBuffer = null;
+
+      modalTitle.textContent = `✏️ キャラクター「${char.name}」の編集`;
+      saveOcBtn.textContent = "変更を保存（上書き更新）";
+      ocNameInput.value = char.name;
+
+      // 画像プレビューのセット
+      if (char.image) {
+        imagePreview.src = char.image;
+        imagePreview.style.display = "block";
+        imageDropText.textContent = "🔄 新しい画像を選択して上書き";
+        imageKeepHint.style.display = "block";
+      } else {
+        imagePreview.style.display = "none";
+        imageDropText.textContent = "📁 クリックして画像ファイルを選択";
+        imageKeepHint.style.display = "none";
+      }
+
+      // 音声状態のセット
+      if (char.audioBuffer || char.rawAudioBuffer || char.playNormal) {
+        audioStatusText.textContent = "✅ 現在の音声が登録されています（上書きする場合のみファイル選択/録音）";
+        audioKeepHint.style.display = "block";
+        previewAudioBtn.style.display = "inline-flex";
+      } else {
+        audioStatusText.textContent = "🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)";
+        audioKeepHint.style.display = "none";
+        previewAudioBtn.style.display = "none";
+      }
+
+      recStatus.textContent = "";
+      ocModal.classList.add("open");
+    }
+
     closeModalBtn.addEventListener("click", () => ocModal.classList.remove("open"));
+
+    // 音声試聴ボタン
+    previewAudioBtn.addEventListener("click", () => {
+      initAudio();
+      const time = audioCtx.currentTime;
+      if (customAudioBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = customAudioBuffer;
+        src.connect(audioCtx.destination);
+        src.start(time);
+        showToast("🔊 新しく選択した音声をテスト再生中...");
+      } else if (currentEditingCharId) {
+        const targetChar = allCharacters.find(c => c.id === currentEditingCharId);
+        if (targetChar) {
+          if (targetChar.audioBuffer) {
+            const src = audioCtx.createBufferSource();
+            src.buffer = targetChar.audioBuffer;
+            src.connect(audioCtx.destination);
+            src.start(time);
+            showToast(`🔊 「${targetChar.name}」の登録音声をテスト再生中...`);
+          } else if (targetChar.playNormal) {
+            targetChar.playNormal(time, 0);
+            showToast(`🔊 「${targetChar.name}」のプリセット音声をテスト再生中...`);
+          }
+        }
+      }
+    });
 
     imageDropArea.addEventListener("click", () => imageInput.click());
     imageInput.addEventListener("change", (e) => {
@@ -2503,6 +2603,8 @@
           uploadedImageData = event.target.result;
           imagePreview.src = uploadedImageData;
           imagePreview.style.display = "block";
+          imageDropText.textContent = `✅ 新しい画像を選択: ${file.name}`;
+          showToast(`🖼️ 新しい画像「${file.name}」をセットしました`);
         };
         reader.readAsDataURL(file);
       }
@@ -2515,7 +2617,9 @@
         initAudio();
         customRawAudioBuffer = await file.arrayBuffer();
         customAudioBuffer = await audioCtx.decodeAudioData(customRawAudioBuffer.slice(0));
-        audioStatusText.textContent = `✅ 音声読み込み完了: ${file.name}`;
+        audioStatusText.textContent = `✅ 新しい音声ファイルをセット: ${file.name}`;
+        previewAudioBtn.style.display = "inline-flex";
+        showToast(`🎵 新しい音声「${file.name}」をセットしました`);
       }
     });
 
@@ -2534,6 +2638,8 @@
             customAudioBuffer = await audioCtx.decodeAudioData(customRawAudioBuffer.slice(0));
             recStatus.textContent = "🎉 録音完了！";
             audioStatusText.textContent = "✅ マイク録音の音声をセットしました";
+            previewAudioBtn.style.display = "inline-flex";
+            showToast("🎙️ 録音した音声をセットしました");
           };
 
           mediaRecorder.start();
@@ -2556,6 +2662,48 @@
       initAudio();
       const name = ocNameInput.value.trim() || "マイキャラ";
 
+      if (currentEditingCharId) {
+        // --- 既存キャラクターの編集（上書き更新） ---
+        const targetChar = allCharacters.find(c => c.id === currentEditingCharId);
+        if (targetChar) {
+          targetChar.name = name;
+
+          // 画像：新しくアップロードされた場合のみ上書き
+          if (uploadedImageData !== null) {
+            targetChar.image = uploadedImageData;
+          }
+
+          // 音声：新しくアップロード/録音された場合のみ上書き
+          if (customAudioBuffer !== null) {
+            targetChar.audioBuffer = customAudioBuffer;
+            targetChar.rawAudioBuffer = customRawAudioBuffer;
+            // プリセット音声を無効化して自作音声を優先
+            targetChar.playNormal = null;
+            targetChar.playHorror = null;
+          }
+
+          try {
+            await dbSaveCharacter(targetChar);
+          } catch (err) {
+            console.warn("IndexedDB save warning:", err);
+          }
+
+          // ステージ上のスロットもリアルタイム更新
+          slotStates.forEach(slot => {
+            if (slot.character && slot.character.id === targetChar.id) {
+              slot.character = targetChar;
+            }
+          });
+
+          renderStage();
+          renderPalette();
+          ocModal.classList.remove("open");
+          showToast(`✨ キャラクター「${targetChar.name}」の情報を上書き更新しました！`);
+          return;
+        }
+      }
+
+      // --- 新規キャラクターの作成 ---
       if (!customAudioBuffer) {
         customAudioBuffer = createDefaultSynthBuffer();
         customRawAudioBuffer = audioBufferToWavArrayBuffer(customAudioBuffer);

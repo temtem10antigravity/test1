@@ -137,6 +137,29 @@
       box-shadow: 0 16px 35px rgba(147, 51, 234, 0.3);
     }
 
+    .game-card-sprunki2 {
+      border-color: #fda4af;
+    }
+    .game-card-sprunki2:hover {
+      border-color: #f43f5e;
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 16px 35px rgba(244, 63, 94, 0.35);
+    }
+
+    .new-tag {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: linear-gradient(135deg, #ff0055 0%, #ff5d8f 100%);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 3px 10px;
+      border-radius: 999px;
+      box-shadow: 0 4px 10px rgba(255, 0, 85, 0.3);
+      letter-spacing: 0.05em;
+    }
+
     .game-card-omikuji {
       border-color: #ffd6e0;
     }
@@ -178,6 +201,10 @@
 
     .game-card-sprunki .game-icon-box {
       background: linear-gradient(135deg, #f3e8ff 0%, #d8b4fe 100%);
+    }
+
+    .game-card-sprunki2 .game-icon-box {
+      background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%);
     }
 
     .game-card-omikuji .game-icon-box {
@@ -229,6 +256,12 @@
       box-shadow: 0 6px 15px rgba(147, 51, 234, 0.3);
     }
 
+    .game-card-sprunki2 .play-btn {
+      background: linear-gradient(135deg, #ff0055 0%, #ff5d8f 100%);
+      color: #fff;
+      box-shadow: 0 6px 15px rgba(255, 0, 85, 0.35);
+    }
+
     .game-card-omikuji .play-btn {
       background: linear-gradient(135deg, #ff85a1 0%, #ff5d8f 100%);
       color: #fff;
@@ -266,6 +299,18 @@
     <p class="subtitle">遊びたいゲームをタップして選んでね！✨</p>
 
     <div class="game-grid">
+      <!-- スプランキービート2 カード（最新） -->
+      <a href="スプランキービート２.html" class="game-card game-card-sprunki2">
+        <div class="new-tag">NEW ✨</div>
+        <div class="game-icon-box">⚡</div>
+        <h2 class="game-title">スプランキー・ビート2</h2>
+        <p class="game-desc">画像・音声の編集＆上書き機能搭載！PBM70参戦の最新バージョン🎵</p>
+        <div class="play-btn">
+          <span>演奏する (Ver.2)</span>
+          <span>➔</span>
+        </div>
+      </a>
+
       <!-- スプランキービートメーカーカード -->
       <a href="sprunki.html" class="game-card game-card-sprunki">
         <div class="game-icon-box">🎧</div>
