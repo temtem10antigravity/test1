@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎵 スプランキー・ビートメーカー（Sprunki OC） 🎧</title>
-  <meta name="description" content="画像と音声を自由にアップロードして自分だけのキャラクター（OC）を作れるビートボックス・音楽ミキシングゲーム！">
+  <title>🎵 スプランキー・ビートメーカー（Sprunki OC & HORROR） 🎧</title>
+  <meta name="description" content="画像と音声を自由にアップロードして自分だけのキャラクター（OC）を作れる！通常モード＆裏ホラーモード搭載の音楽ミキシングゲーム！">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Fredoka:wght@600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Fredoka:wght@600;700;900&family=Creepster&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -21,7 +21,8 @@
       --accent-yellow: #ffe600;
       --accent-purple: #9d4edd;
       --accent-green: #06d6a0;
-      --beat-speed: 0.46s; /* BPM130で約0.46s */
+      --accent-blood: #ff0033;
+      --beat-speed: 0.46s;
     }
 
     * {
@@ -42,6 +43,39 @@
       align-items: center;
       padding: 16px;
       overflow-x: hidden;
+      transition: background 0.5s ease;
+    }
+
+    /* ホラーモード時の全体スタイル */
+    body.horror-mode {
+      background: radial-gradient(circle at 50% 20%, #2b0207 0%, #080102 100%);
+      --panel-bg: rgba(28, 10, 14, 0.95);
+      --border-glow: rgba(255, 0, 51, 0.5);
+      --text-main: #ffebee;
+      --text-muted: #d48a93;
+    }
+
+    /* ホラー切り替えフラッシュ */
+    .screen-flash-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #ff0033;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: opacity 0.4s ease;
+    }
+    .screen-flash-overlay.flashing {
+      animation: horrorGlitchFlash 0.6s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+    @keyframes horrorGlitchFlash {
+      0% { opacity: 0.95; filter: invert(1); }
+      30% { opacity: 0.7; filter: contrast(3); }
+      60% { opacity: 0.85; filter: hue-rotate(90deg); }
+      100% { opacity: 0; }
     }
 
     /* ヘッダー・ナビ */
@@ -76,6 +110,39 @@
       background: rgba(0, 240, 255, 0.25);
       box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
       transform: translateY(-1px);
+    }
+    body.horror-mode .nav-btn {
+      color: #ff4d6d;
+      background: rgba(255, 0, 51, 0.15);
+      border-color: rgba(255, 0, 51, 0.4);
+    }
+
+    /* ホラーモード切替ボタン */
+    .mode-toggle-btn {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(135deg, #1f0103 0%, #660708 100%);
+      border: 2px solid #ff0033;
+      padding: 8px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 18px rgba(255, 0, 51, 0.45);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .mode-toggle-btn:hover {
+      transform: scale(1.06) translateY(-2px);
+      box-shadow: 0 0 25px rgba(255, 0, 51, 0.8);
+    }
+    body.horror-mode .mode-toggle-btn {
+      background: linear-gradient(135deg, #00f0ff 0%, #0077b6 100%);
+      border-color: #00f0ff;
+      color: #0b121e;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
     }
 
     /* BPM コントロールエリア */
@@ -120,6 +187,11 @@
       box-shadow: 0 0 14px rgba(0, 240, 255, 0.65);
       font-weight: 900;
     }
+    body.horror-mode .bpm-btn.active {
+      background: linear-gradient(135deg, #ff0033 0%, #a4161a 100%);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(255, 0, 51, 0.8);
+    }
 
     .bpm-badge {
       font-family: 'Fredoka', sans-serif;
@@ -146,6 +218,10 @@
       box-shadow: 0 0 12px var(--accent-pink);
       transform: scale(1.35);
     }
+    body.horror-mode .beat-dot.active {
+      background: #ff0000;
+      box-shadow: 0 0 15px #ff0000;
+    }
 
     /* メインゲームエリア */
     .game-wrapper {
@@ -161,10 +237,14 @@
       flex-direction: column;
       gap: 20px;
       position: relative;
+      transition: all 0.4s ease;
+    }
+    body.horror-mode .game-wrapper {
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 45px rgba(255, 0, 51, 0.25);
     }
 
     /* ===================================================
-       スプランキー公式風 ステージエリア（背景絵 ＆ キャラ並び）
+       スプランキー ステージエリア（通常 ＆ ホラー背景）
        =================================================== */
     .stage-container {
       width: 100%;
@@ -177,8 +257,11 @@
       display: flex;
       align-items: flex-end;
     }
+    body.horror-mode .stage-container {
+      border-color: rgba(255, 0, 51, 0.4);
+    }
 
-    /* ステージ背景画（空・雲・緑の丘・ライティング） */
+    /* 通常ステージ背景画 */
     .stage-background {
       position: absolute;
       top: 0;
@@ -188,21 +271,51 @@
       background: linear-gradient(180deg, #022338 0%, #04526d 38%, #087f8c 68%, #0ca694 100%);
       z-index: 1;
       pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    body.horror-mode .stage-background {
+      opacity: 0;
     }
 
-    /* 遠景の雲 */
+    /* ホラーステージ背景画（血の満月・赤黒い嵐・枯れ木） */
+    .stage-background-horror {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #150002 0%, #3d0006 45%, #660708 75%, #1b0002 100%);
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    body.horror-mode .stage-background-horror {
+      opacity: 1;
+    }
+
+    .blood-moon {
+      position: absolute;
+      top: 25px;
+      right: 18%;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, #ff4d6d 0%, #c9184a 60%, #590d22 100%);
+      box-shadow: 0 0 35px rgba(255, 0, 51, 0.8), 0 0 10px #ff758f;
+      opacity: 0.9;
+    }
+
     .cloud-layer {
       position: absolute;
       top: 20px;
       width: 100%;
       height: 90px;
-      background-repeat: repeat-x;
       opacity: 0.75;
       background-image: radial-gradient(circle at 50% 100%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 40%, transparent 70%);
       filter: blur(1px);
     }
 
-    /* 緑の丘（ベクターシェイプ） */
     .hills-layer {
       position: absolute;
       bottom: 0;
@@ -213,7 +326,6 @@
       pointer-events: none;
     }
 
-    /* ステージの暗がりビネット・ライティング */
     .stage-vignette {
       position: absolute;
       top: 0;
@@ -224,6 +336,10 @@
                   linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 35%);
       z-index: 3;
       pointer-events: none;
+    }
+    body.horror-mode .stage-vignette {
+      background: radial-gradient(ellipse at 50% 100%, transparent 30%, rgba(50, 0, 10, 0.55) 75%, rgba(0, 0, 0, 0.9) 100%),
+                  linear-gradient(to top, rgba(130, 0, 20, 0.5) 0%, transparent 45%);
     }
 
     /* ステージ上の7枠キャラクター並び */
@@ -249,7 +365,7 @@
       }
     }
 
-    /* 個別キャラクタースロット（立ち絵エリア） */
+    /* 個別キャラクタースロット */
     .char-stand-slot {
       height: 270px;
       display: flex;
@@ -261,9 +377,11 @@
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 20px;
     }
-
     .char-stand-slot:hover {
       background: rgba(255, 255, 255, 0.04);
+    }
+    body.horror-mode .char-stand-slot:hover {
+      background: rgba(255, 0, 51, 0.08);
     }
 
     .char-stand-slot.drag-over {
@@ -271,8 +389,12 @@
       box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
       transform: scale(1.04);
     }
+    body.horror-mode .char-stand-slot.drag-over {
+      background: rgba(255, 0, 51, 0.25);
+      box-shadow: 0 0 30px rgba(255, 0, 51, 0.7);
+    }
 
-    /* スロット操作ボタン（ホバー時にキャラ頭上・足元に表示） */
+    /* スロット操作ボタン */
     .stand-controls {
       position: absolute;
       top: 6px;
@@ -314,7 +436,7 @@
       font-size: 0.72rem;
       font-weight: 900;
       color: #fff;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       padding: 3px 10px;
       border-radius: 10px;
       white-space: nowrap;
@@ -325,6 +447,11 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       text-align: center;
       z-index: 15;
+    }
+    body.horror-mode .stand-name-label {
+      background: rgba(40, 0, 5, 0.85);
+      border-color: rgba(255, 0, 51, 0.4);
+      color: #ffccd5;
     }
 
     /* ===================================================
@@ -348,21 +475,24 @@
       filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
     }
 
-    /* ビート同期アニメーション（BPMによって可変） */
     .bouncing .sprunki-svg-character {
       animation: sprunkiBounce var(--beat-speed) infinite ease-in-out alternate;
     }
-
-    @keyframes sprunkiBounce {
-      0% {
-        transform: scale(1) translateY(0);
-      }
-      100% {
-        transform: scale(1.05, 0.96) translateY(-12px);
-      }
+    body.horror-mode .bouncing .sprunki-svg-character {
+      animation: horrorTwitchBounce var(--beat-speed) infinite ease-in-out alternate;
     }
 
-    /* 待機キャラの息づかいアニメーション */
+    @keyframes sprunkiBounce {
+      0% { transform: scale(1) translateY(0); }
+      100% { transform: scale(1.05, 0.96) translateY(-12px); }
+    }
+
+    @keyframes horrorTwitchBounce {
+      0% { transform: scale(1) translateY(0) rotate(0deg); }
+      50% { transform: scale(1.08, 0.92) translateY(-15px) rotate(1.5deg); }
+      100% { transform: scale(0.96, 1.04) translateY(-10px) rotate(-1.5deg); }
+    }
+
     .idle-standby .sprunki-svg-character {
       animation: idleBreathe 2.4s infinite ease-in-out alternate;
       opacity: 0.65;
@@ -373,7 +503,6 @@
       100% { transform: scale(1.02, 0.98) translateY(-4px); }
     }
 
-    /* 自作OC画像付きキャラの場合 */
     .custom-oc-avatar-frame {
       width: 72px;
       height: 72px;
@@ -385,6 +514,10 @@
       top: 15px;
       z-index: 5;
     }
+    body.horror-mode .custom-oc-avatar-frame {
+      filter: invert(0.85) hue-rotate(170deg) contrast(1.5) drop-shadow(0 0 10px #ff0033);
+      border-color: #ff0033;
+    }
 
     /* 下部：キャラクターパレットトレイ */
     .palette-section {
@@ -392,6 +525,10 @@
       border-radius: 24px;
       padding: 18px 16px;
       border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+    body.horror-mode .palette-section {
+      background: rgba(22, 5, 8, 0.85);
+      border-color: rgba(255, 0, 51, 0.2);
     }
 
     .palette-header {
@@ -441,11 +578,19 @@
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
     }
+    body.horror-mode .char-card {
+      background: rgba(255, 0, 51, 0.04);
+      border-color: rgba(255, 0, 51, 0.25);
+    }
 
     .char-card:hover {
       transform: translateY(-6px) scale(1.06);
       border-color: var(--accent-cyan);
       box-shadow: 0 10px 22px rgba(0, 240, 255, 0.3);
+    }
+    body.horror-mode .char-card:hover {
+      border-color: #ff0033;
+      box-shadow: 0 10px 22px rgba(255, 0, 51, 0.4);
     }
 
     .char-card:active {
@@ -465,6 +610,10 @@
       justify-content: center;
       font-size: 1.8rem;
       background: #171a29;
+    }
+    body.horror-mode .char-card-icon {
+      background: #2b0509;
+      border-color: rgba(255, 0, 51, 0.4);
     }
 
     .char-card-name {
@@ -517,17 +666,9 @@
       justify-content: center;
       transition: all 0.15s ease;
     }
-    .char-action-btn:hover {
-      transform: scale(1.2);
-    }
-    .char-action-btn.export:hover {
-      background: var(--accent-cyan);
-      color: #000;
-    }
-    .char-action-btn.delete:hover {
-      background: #ff4757;
-      color: #fff;
-    }
+    .char-action-btn:hover { transform: scale(1.2); }
+    .char-action-btn.export:hover { background: var(--accent-cyan); color: #000; }
+    .char-action-btn.delete:hover { background: #ff4757; color: #fff; }
 
     /* 新規OC作成ボタン */
     .create-oc-btn {
@@ -553,10 +694,7 @@
       transform: translateY(-6px) scale(1.06);
       box-shadow: 0 10px 20px rgba(255, 51, 119, 0.35);
     }
-    .create-oc-btn .plus-icon {
-      font-size: 2rem;
-      line-height: 1;
-    }
+    .create-oc-btn .plus-icon { font-size: 2rem; line-height: 1; }
 
     /* ファイル読込ボタン */
     .import-oc-btn {
@@ -582,10 +720,7 @@
       transform: translateY(-6px) scale(1.06);
       box-shadow: 0 10px 20px rgba(0, 240, 255, 0.35);
     }
-    .import-oc-btn .import-icon {
-      font-size: 1.8rem;
-      line-height: 1;
-    }
+    .import-oc-btn .import-icon { font-size: 1.8rem; line-height: 1; }
 
     /* ボトムコントロールバー */
     .bottom-controls {
@@ -623,6 +758,10 @@
       transform: translateY(-2px) scale(1.03);
       box-shadow: 0 8px 24px rgba(255, 51, 119, 0.5);
     }
+    body.horror-mode .main-btn {
+      background: linear-gradient(135deg, #ff0033 0%, #900c3f 100%);
+      box-shadow: 0 6px 18px rgba(255, 0, 51, 0.5);
+    }
 
     .secondary-btn {
       background: rgba(255, 255, 255, 0.1);
@@ -636,11 +775,9 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .secondary-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
+    .secondary-btn:hover { background: rgba(255, 255, 255, 0.2); }
 
-    /* モーダル（OC作成ダイアログ） */
+    /* モーダル */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -655,9 +792,7 @@
       align-items: center;
       padding: 16px;
     }
-    .modal-overlay.open {
-      display: flex;
-    }
+    .modal-overlay.open { display: flex; }
 
     .modal-box {
       width: 100%;
@@ -669,6 +804,11 @@
       box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255, 51, 119, 0.3);
       position: relative;
     }
+    body.horror-mode .modal-box {
+      background: #1f0408;
+      border-color: #ff0033;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(255, 0, 51, 0.4);
+    }
 
     .modal-title {
       font-size: 1.3rem;
@@ -678,10 +818,7 @@
       color: #fff;
     }
 
-    .form-group {
-      margin-bottom: 16px;
-    }
-
+    .form-group { margin-bottom: 16px; }
     .form-label {
       display: block;
       font-size: 0.85rem;
@@ -689,6 +826,7 @@
       margin-bottom: 6px;
       color: var(--accent-cyan);
     }
+    body.horror-mode .form-label { color: #ff4d6d; }
 
     .form-input {
       width: 100%;
@@ -725,7 +863,6 @@
       display: none;
     }
 
-    /* マイク録音ボタン */
     .record-box {
       display: flex;
       gap: 10px;
@@ -791,6 +928,11 @@
       gap: 8px;
       animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), toastOut 0.3s ease 2.7s forwards;
     }
+    body.horror-mode .toast-item {
+      background: rgba(45, 0, 10, 0.95);
+      border-color: #ff0033;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 0, 51, 0.5);
+    }
     @keyframes toastIn {
       from { opacity: 0; transform: translateY(20px) scale(0.9); }
       to { opacity: 1; transform: translateY(0) scale(1); }
@@ -803,8 +945,17 @@
 </head>
 <body>
 
+  <!-- ホラー画面フラッシュ用オーバーレイ -->
+  <div class="screen-flash-overlay" id="flashOverlay"></div>
+
   <header>
     <a href="index.html" class="nav-btn">🏠 ホームへ戻る</a>
+
+    <!-- 通常 ⇔ ホラーモード 切り替えボタン -->
+    <button class="mode-toggle-btn" id="modeToggleBtn" title="通常モードとホラーモードを切り替えます">
+      <span id="modeIcon">👁️</span>
+      <span id="modeText">ホラーモードへ変身</span>
+    </button>
 
     <!-- BPM 4段階セレクター ＆ LEDインジケーター -->
     <div class="bpm-control-container">
@@ -825,52 +976,63 @@
   </header>
 
   <main class="game-wrapper">
-    <!-- スプランキー公式風 ステージエリア（パノラマ背景 ＆ キャラクター並び） -->
+    <!-- スプランキー ステージエリア（通常＆ホラー背景） -->
     <div class="stage-container">
-      <!-- 背景グラフィック（空・雲・緑の丘） -->
+      <!-- 通常モード背景グラフィック -->
       <div class="stage-background">
         <div class="cloud-layer"></div>
         <svg class="hills-layer" viewBox="0 0 1200 200" preserveAspectRatio="none">
-          <!-- 遠くの濃い緑の丘 -->
           <path d="M0,80 Q250,20 500,70 T1000,40 Q1120,70 1200,60 L1200,200 L0,200 Z" fill="#086338" opacity="0.85"/>
-          <!-- 中景の鮮やかな緑の丘 -->
           <path d="M0,110 Q200,50 450,100 T900,80 Q1080,120 1200,90 L1200,200 L0,200 Z" fill="#14833b"/>
-          <!-- 手前の明るい緑の丘とステージフロア -->
           <path d="M0,140 Q300,100 650,135 T1200,120 L1200,200 L0,200 Z" fill="#20a142"/>
         </svg>
-        <div class="stage-vignette"></div>
       </div>
 
-      <!-- 7人のキャラクタースロット（背景の上に並列配置） -->
-      <div class="stage-characters-grid" id="stageGrid">
-        <!-- JSで7体のスプランキー立ち絵スロットを生成 -->
+      <!-- ホラーモード背景グラフィック（血の満月・枯れ木・赤黒い嵐） -->
+      <div class="stage-background-horror">
+        <div class="blood-moon"></div>
+        <svg class="hills-layer" viewBox="0 0 1200 200" preserveAspectRatio="none">
+          <!-- 遠景の黒い山 -->
+          <path d="M0,70 Q300,10 600,60 T1200,40 L1200,200 L0,200 Z" fill="#1c0003"/>
+          <!-- 枯れ木のシルエット群 -->
+          <!-- 木1 -->
+          <path d="M120,130 L120,60 M120,80 L100,65 M120,95 L140,80 M120,70 L135,55" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+          <!-- 木2 -->
+          <path d="M480,140 L480,50 M480,80 L455,60 M480,100 L505,75 M480,65 L460,45" stroke="#000" stroke-width="4.5" stroke-linecap="round"/>
+          <!-- 木3 -->
+          <path d="M920,135 L920,55 M920,85 L895,65 M920,105 L945,85" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+          <!-- 手前の血の丘 -->
+          <path d="M0,110 Q250,60 550,105 T1200,85 L1200,200 L0,200 Z" fill="#400106"/>
+          <path d="M0,145 Q350,110 700,145 T1200,130 L1200,200 L0,200 Z" fill="#240003"/>
+        </svg>
       </div>
+
+      <div class="stage-vignette"></div>
+
+      <!-- 7人のキャラクタースロット -->
+      <div class="stage-characters-grid" id="stageGrid"></div>
     </div>
 
-    <!-- キャラクターパレット（一覧 ＆ OC追加/読込ボタン） -->
+    <!-- キャラクターパレット -->
     <section class="palette-section">
       <div class="palette-header">
         <div class="palette-title">
-          <span>🎨 キャラクターを選んでステージに立たせよう！</span>
+          <span id="paletteTitleText">🎨 キャラクターを選んでステージに立たせよう！</span>
         </div>
-        <span style="font-size: 0.8rem; color: var(--text-muted);">（ドラッグ＆ドロップまたはクリックでステージに配置）</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">（ドラッグ＆ドロップまたはクリックで配置）</span>
       </div>
 
       <div class="palette-grid" id="paletteGrid">
-        <!-- 新規OC作成ボタン -->
         <button class="create-oc-btn" id="openModalBtn">
           <span class="plus-icon">＋</span>
           <span>自作OC追加</span>
         </button>
 
-        <!-- ファイルからキャラ読込ボタン -->
         <button class="import-oc-btn" id="importOcBtn" title="保存したキャラファイル (.json / .sprunki) を読み込む">
           <span class="import-icon">📂</span>
           <span>ファイル読込</span>
         </button>
         <input type="file" id="importFileInput" accept=".json,.sprunki" style="display: none;">
-
-        <!-- JSでキャラクターカード生成 -->
       </div>
     </section>
 
@@ -887,7 +1049,7 @@
       </div>
 
       <div class="ctrl-group">
-        <span style="font-size: 0.85rem; color: var(--text-muted);">✨ 背景絵の上にキャラたちが並んでビートに合わせて歌います！</span>
+        <span style="font-size: 0.85rem; color: var(--text-muted);" id="statusNote">✨ ホラーモードボタンで恐怖の裏世界へ切り替え可能！</span>
       </div>
     </div>
   </main>
@@ -937,6 +1099,9 @@
   </div>
 
   <script>
+    // --- モード管理（通常 ⇔ ホラー） ---
+    let isHorrorMode = false;
+
     // --- IndexedDB ストレージ管理モジュール ---
     const DB_NAME = "SprunkiBeatDB";
     const DB_VERSION = 1;
@@ -1076,35 +1241,46 @@
       }, 3000);
     }
 
-    // --- スプランキー ベクター立ち絵グラフィック生成 ---
-    function getSprunkiCharacterSVG(char, isStandby = false) {
+    // --- スプランキー 通常＆ホラー版 立ち絵SVG生成 ---
+    function getSprunkiCharacterSVG(char, isStandby = false, isHorror = false) {
       if (isStandby) {
-        // 待機中グレー素体キャラ（瞬き・おだやかな呼吸）
+        if (isHorror) {
+          // ホラー待機キャラ（漆黒の影＋赤い発光眼）
+          return `
+            <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+              <path d="M45,130 Q40,180 32,220 L88,220 Q80,180 75,130 Z" fill="#150002" stroke="#4a0007" stroke-width="4"/>
+              <rect x="52" y="110" width="16" height="25" rx="5" fill="#1c0003" stroke="#4a0007" stroke-width="3"/>
+              <ellipse cx="60" cy="72" rx="44" ry="44" fill="#150002" stroke="#4a0007" stroke-width="4.5"/>
+              <!-- 虚無の眼球と赤いピンポイント -->
+              <circle cx="44" cy="72" r="14" fill="#000" stroke="#ff0033" stroke-width="2"/>
+              <circle cx="76" cy="72" r="14" fill="#000" stroke="#ff0033" stroke-width="2"/>
+              <circle cx="44" cy="72" r="4.5" fill="#ff0033"/>
+              <circle cx="76" cy="72" r="4.5" fill="#ff0033"/>
+              <!-- 黒い血の滴り -->
+              <path d="M44,86 L44,102 M76,86 L76,98" stroke="#ff0033" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          `;
+        }
+        // 通常待機キャラ（グレー素体）
         return `
           <svg class="sprunki-svg-character" viewBox="0 0 120 220">
-            <!-- 胴体 -->
             <path d="M45,130 Q40,180 32,220 L88,220 Q80,180 75,130 Z" fill="#4d5366" stroke="#2b2f3d" stroke-width="4"/>
-            <!-- 首 -->
             <rect x="52" y="110" width="16" height="25" rx="5" fill="#585f75" stroke="#2b2f3d" stroke-width="3"/>
-            <!-- 頭部 -->
             <ellipse cx="60" cy="72" rx="44" ry="44" fill="#606780" stroke="#2b2f3d" stroke-width="4.5"/>
-            <!-- 白目 -->
             <circle cx="44" cy="72" r="14" fill="#ffffff" stroke="#2b2f3d" stroke-width="3.5"/>
             <circle cx="76" cy="72" r="14" fill="#ffffff" stroke="#2b2f3d" stroke-width="3.5"/>
-            <!-- 黒目（待機） -->
             <circle cx="44" cy="72" r="6.5" fill="#1b1c24"/>
             <circle cx="76" cy="72" r="6.5" fill="#1b1c24"/>
             <circle cx="42" cy="70" r="2" fill="#fff"/>
             <circle cx="74" cy="70" r="2" fill="#fff"/>
-            <!-- お口 -->
             <path d="M53,96 Q60,100 67,96" fill="none" stroke="#2b2f3d" stroke-width="3" stroke-linecap="round"/>
           </svg>
         `;
       }
 
-      // 自作OCで画像がある場合
+      // 自作OC画像の場合
       if (char.image) {
-        const bodyColor = char.color || "#ff3377";
+        const bodyColor = isHorror ? "#4a0008" : (char.color || "#ff3377");
         return `
           <div class="sprunki-sprite-box">
             <svg class="sprunki-svg-character" viewBox="0 0 120 220">
@@ -1112,158 +1288,302 @@
               <rect x="52" y="110" width="16" height="25" rx="5" fill="${bodyColor}" stroke="#111" stroke-width="3"/>
               <ellipse cx="60" cy="72" rx="44" ry="44" fill="${bodyColor}" stroke="#111" stroke-width="4.5"/>
             </svg>
-            <img src="${char.image}" class="custom-oc-avatar-frame" style="border-color:${bodyColor};" alt="OC">
+            <img src="${char.image}" class="custom-oc-avatar-frame" style="border-color:${isHorror ? '#ff0033' : bodyColor};" alt="OC">
           </div>
         `;
       }
 
-      // デフォルトキャラクター固有のスプランキー立ち絵
+      // --- ホラー版の専用立ち絵グラフィック ---
+      if (isHorror) {
+        switch (char.id) {
+          case "kick_snare": // Oren HORROR: 狂気スマイル・血走る黒瞳
+            return `
+              <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+                <!-- 破れたプロペラ -->
+                <rect x="58" y="12" width="4" height="14" fill="#440008" stroke="#000" stroke-width="2"/>
+                <polygon points="35,16 60,10 85,16 60,20" fill="#a4161a" stroke="#000" stroke-width="2"/>
+                <!-- 血痕のキャップ -->
+                <path d="M22,60 Q60,16 98,60 Z" fill="#660708" stroke="#000" stroke-width="4"/>
+                <path d="M38,55 Q60,22 60,60 Z" fill="#ba181b" opacity="0.9"/>
+                <path d="M18,60 Q60,68 102,60 Q106,66 98,70 Q60,76 22,70 Z" fill="#161a1d" stroke="#000" stroke-width="3.5"/>
+                <!-- 胴体 -->
+                <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#d3d3d3" stroke="#000" stroke-width="4"/>
+                <path d="M50,140 L55,160 M70,150 L65,175 M60,190 L60,215" stroke="#ff0000" stroke-width="2.5"/>
+                <!-- 首 -->
+                <rect x="52" y="110" width="16" height="25" rx="5" fill="#a0a0a0" stroke="#000" stroke-width="3"/>
+                <!-- 青ざめた頭部 -->
+                <ellipse cx="60" cy="80" rx="42" ry="38" fill="#e5e5e5" stroke="#000" stroke-width="4.5"/>
+                <!-- 巨大な黒い窪みと赤眼 -->
+                <circle cx="42" cy="78" r="18" fill="#000"/>
+                <circle cx="78" cy="78" r="18" fill="#000"/>
+                <circle cx="42" cy="78" r="5" fill="#ff0000"/>
+                <circle cx="78" cy="78" r="5" fill="#ff0000"/>
+                <circle cx="43" cy="77" r="1.5" fill="#fff"/>
+                <circle cx="79" cy="77" r="1.5" fill="#fff"/>
+                <!-- 血の涙 -->
+                <path d="M42,96 L40,118 M78,96 L80,115" stroke="#ff0033" stroke-width="3" stroke-linecap="round"/>
+                <!-- 狂気の裂けた笑顔 -->
+                <path d="M36,102 Q60,126 84,102 Q60,112 36,102 Z" fill="#1b0002" stroke="#ff0000" stroke-width="2.5"/>
+                <line x1="44" y1="106" x2="44" y2="114" stroke="#ff0000" stroke-width="2"/>
+                <line x1="52" y1="108" x2="52" y2="118" stroke="#ff0000" stroke-width="2"/>
+                <line x1="60" y1="109" x2="60" y2="119" stroke="#ff0000" stroke-width="2"/>
+                <line x1="68" y1="108" x2="68" y2="118" stroke="#ff0000" stroke-width="2"/>
+                <line x1="76" y1="106" x2="76" y2="114" stroke="#ff0000" stroke-width="2"/>
+              </svg>
+            `;
+
+          case "hihat": // Sky HORROR: 暴走サイボーグ・ひび割れバイザー＆光線
+            return `
+              <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+                <!-- 壊れたヘッドホン -->
+                <path d="M16,70 Q60,8 104,70" fill="none" stroke="#220005" stroke-width="9"/>
+                <rect x="8" y="55" width="16" height="34" rx="8" fill="#500" stroke="#000" stroke-width="3.5"/>
+                <rect x="96" y="55" width="16" height="34" rx="8" fill="#500" stroke="#000" stroke-width="3.5"/>
+                <!-- スパーク雷 -->
+                <path d="M14,50 L4,35 L12,30 L6,15" stroke="#ff0055" stroke-width="2.5" fill="none"/>
+                <!-- 胴体 -->
+                <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#1f363d" stroke="#000" stroke-width="4"/>
+                <rect x="52" y="110" width="16" height="25" rx="5" fill="#142129" stroke="#000" stroke-width="3"/>
+                <!-- 頭部 -->
+                <ellipse cx="60" cy="72" rx="42" ry="42" fill="#2b454f" stroke="#000" stroke-width="4.5"/>
+                <!-- ひび割れたバイザー -->
+                <polygon points="20,60 100,60 92,84 28,84" fill="#050a0e" stroke="#ff0033" stroke-width="2"/>
+                <!-- ひび割れライン -->
+                <path d="M35,62 L50,75 L45,84 M70,60 L62,70 L75,80" stroke="#ff0033" stroke-width="2" fill="none"/>
+                <!-- 暴走赤眼スキャナー -->
+                <circle cx="50" cy="72" r="9" fill="#ff0033" filter="drop-shadow(0 0 6px red)"/>
+                <circle cx="50" cy="72" r="3" fill="#fff"/>
+                <!-- 鋭利な口 -->
+                <polygon points="48,94 72,94 60,108" fill="#ff0000"/>
+              </svg>
+            `;
+
+          case "bass": // Vineria HORROR: 堕天使・悪魔の角と邪悪なヘイロー
+            return `
+              <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+                <!-- 邪悪な黒いヘイロー（トゲ付き） -->
+                <ellipse cx="40" cy="22" rx="26" ry="8" fill="none" stroke="#240046" stroke-width="6" transform="rotate(-15 40 22)"/>
+                <ellipse cx="40" cy="22" rx="26" ry="8" fill="none" stroke="#ff0055" stroke-width="2" transform="rotate(-15 40 22)"/>
+                <!-- 悪魔の角 -->
+                <path d="M30,45 Q15,10 5,20 Q18,35 30,50 Z" fill="#3c096c" stroke="#000" stroke-width="2.5"/>
+                <path d="M90,45 Q105,10 115,20 Q102,35 90,50 Z" fill="#3c096c" stroke="#000" stroke-width="2.5"/>
+                <!-- 胴体 -->
+                <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#240046" stroke="#000" stroke-width="4"/>
+                <rect x="52" y="110" width="16" height="25" rx="5" fill="#10002b" stroke="#000" stroke-width="3"/>
+                <!-- 頭部 -->
+                <ellipse cx="60" cy="72" rx="43" ry="43" fill="#5a189a" stroke="#000" stroke-width="4.5"/>
+                <!-- 黒涙を流す白目＆紫眼 -->
+                <circle cx="43" cy="72" r="15" fill="#10002b" stroke="#ff0055" stroke-width="2"/>
+                <circle cx="77" cy="72" r="15" fill="#10002b" stroke="#ff0055" stroke-width="2"/>
+                <circle cx="43" cy="72" r="6" fill="#e0aaff"/>
+                <circle cx="77" cy="72" r="6" fill="#e0aaff"/>
+                <!-- 黒い涙 -->
+                <path d="M43,87 L41,120 M77,87 L79,115" stroke="#10002b" stroke-width="4" stroke-linecap="round"/>
+                <!-- 邪悪な口元 -->
+                <path d="M48,98 Q60,90 72,98 Q60,112 48,98 Z" fill="#10002b" stroke="#ff0055" stroke-width="2"/>
+              </svg>
+            `;
+
+          case "synth": // Garnold HORROR: 錆びたロボット・ギザギザ牙
+            return `
+              <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+                <!-- 折れ曲がったアンテナ -->
+                <path d="M60,32 L60,18 L75,8" stroke="#483c0c" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="75" cy="8" r="9" fill="#ff0033" stroke="#000" stroke-width="3"/>
+                <!-- 胴体 -->
+                <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#5c4d14" stroke="#000" stroke-width="4"/>
+                <rect x="52" y="110" width="16" height="25" rx="5" fill="#3b310b" stroke="#000" stroke-width="3"/>
+                <!-- 錆びた頭部 -->
+                <ellipse cx="60" cy="72" rx="43" ry="43" fill="#78641a" stroke="#000" stroke-width="4.5"/>
+                <!-- 赤く光るカメラアイ -->
+                <rect x="26" y="60" width="68" height="22" rx="6" fill="#111" stroke="#000" stroke-width="2"/>
+                <circle cx="43" cy="71" r="8" fill="#ff0000"/>
+                <circle cx="77" cy="71" r="8" fill="#ff0000"/>
+                <circle cx="43" cy="71" r="3" fill="#fff"/>
+                <circle cx="77" cy="71" r="3" fill="#fff"/>
+                <!-- ギザギザのノコギリ歯 -->
+                <path d="M38,95 L44,105 L50,95 L56,105 L62,95 L68,105 L74,95 L80,105 L82,95" stroke="#fff" stroke-width="3" fill="#111"/>
+              </svg>
+            `;
+
+          case "sparkle": // Raddy HORROR: 凶暴ウーパールーパー・割れたサングラス
+            return `
+              <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+                <!-- 凶暴化したトゲトゲのヒレ -->
+                <path d="M18,65 Q-8,35 2,75 Q-12,85 14,95 Z" fill="#590d22" stroke="#ff0033" stroke-width="2.5"/>
+                <path d="M102,65 Q128,35 118,75 Q132,85 106,95 Z" fill="#590d22" stroke="#ff0033" stroke-width="2.5"/>
+                <!-- 胴体 -->
+                <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#800f2f" stroke="#000" stroke-width="4"/>
+                <rect x="52" y="110" width="16" height="25" rx="5" fill="#590d22" stroke="#000" stroke-width="3"/>
+                <!-- 頭部 -->
+                <ellipse cx="60" cy="72" rx="43" ry="41" fill="#a4133c" stroke="#000" stroke-width="4.5"/>
+                <!-- 割れたサングラスから覗く赤い怪光 -->
+                <polygon points="22,60 56,60 50,84 28,84" fill="#111" stroke="#ff0033" stroke-width="2"/>
+                <polygon points="64,60 98,60 92,84 70,84" fill="#111" stroke="#ff0033" stroke-width="2"/>
+                <!-- ひび割れの間から光る複眼 -->
+                <circle cx="39" cy="72" r="6" fill="#ff0000"/>
+                <circle cx="81" cy="72" r="6" fill="#ff0000"/>
+                <circle cx="39" cy="72" r="2" fill="#fff"/>
+                <circle cx="81" cy="72" r="2" fill="#fff"/>
+                <!-- 凶悪な牙 -->
+                <path d="M46,96 Q60,114 74,96 Z" fill="#200005" stroke="#ff0033" stroke-width="2"/>
+                <polygon points="50,96 54,104 58,96" fill="#fff"/>
+                <polygon points="62,96 66,104 70,96" fill="#fff"/>
+              </svg>
+            `;
+
+          case "voice": // Gray Cat HORROR: ゾンビキャット・傷跡と裂け口
+            return `
+              <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+                <!-- 破れたネコミミ -->
+                <polygon points="26,45 16,10 46,30" fill="#adb5bd" stroke="#000" stroke-width="3.5"/>
+                <polygon points="94,45 104,18 80,32" fill="#adb5bd" stroke="#000" stroke-width="3.5"/>
+                <path d="M96,25 L102,32" stroke="#ff0000" stroke-width="3"/>
+                <!-- 胴体 -->
+                <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#343a40" stroke="#000" stroke-width="4"/>
+                <rect x="52" y="110" width="16" height="25" rx="5" fill="#212529" stroke="#000" stroke-width="3"/>
+                <!-- 青白い頭部＆ツギハギ -->
+                <ellipse cx="60" cy="72" rx="43" ry="41" fill="#dee2e6" stroke="#000" stroke-width="4.5"/>
+                <path d="M30,55 L55,40" stroke="#ff0000" stroke-width="2.5"/>
+                <line x1="36" y1="48" x2="42" y2="54" stroke="#000" stroke-width="2"/>
+                <line x1="44" y1="44" x2="50" y2="50" stroke="#000" stroke-width="2"/>
+                <!-- 渦巻きの狂気アイ -->
+                <circle cx="43" cy="72" r="16" fill="#000"/>
+                <circle cx="77" cy="72" r="16" fill="#000"/>
+                <circle cx="43" cy="72" r="7" fill="#ff0000"/>
+                <circle cx="77" cy="72" r="7" fill="#ff0000"/>
+                <!-- 裂けたジョーカー口 -->
+                <path d="M32,90 Q60,118 88,90" fill="none" stroke="#ba181b" stroke-width="4" stroke-linecap="round"/>
+                <line x1="38" y1="88" x2="38" y2="98" stroke="#ff0000" stroke-width="2.5"/>
+                <line x1="82" y1="88" x2="82" y2="98" stroke="#ff0000" stroke-width="2.5"/>
+              </svg>
+            `;
+
+          default:
+            return `
+              <svg class="sprunki-svg-character" viewBox="0 0 120 220">
+                <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#3a0007" stroke="#ff0033" stroke-width="4"/>
+                <rect x="52" y="110" width="16" height="25" rx="5" fill="#200003" stroke="#ff0033" stroke-width="3"/>
+                <ellipse cx="60" cy="72" rx="43" ry="43" fill="#540b0e" stroke="#ff0033" stroke-width="4.5"/>
+                <circle cx="43" cy="72" r="14" fill="#000"/>
+                <circle cx="77" cy="72" r="14" fill="#000"/>
+                <circle cx="43" cy="72" r="5" fill="#ff0033"/>
+                <circle cx="77" cy="72" r="5" fill="#ff0033"/>
+                <path d="M46,96 Q60,110 74,96" stroke="#ff0033" stroke-width="3" fill="none"/>
+              </svg>
+            `;
+        }
+      }
+
+      // --- 通常版の専用立ち絵グラフィック ---
       switch (char.id) {
-        case "kick_snare": // Oren / カラフルプロペラキャップ
+        case "kick_snare":
           return `
             <svg class="sprunki-svg-character" viewBox="0 0 120 220">
-              <!-- プロペラ・リボン -->
               <rect x="57" y="12" width="6" height="14" fill="#9d4edd" stroke="#111" stroke-width="2"/>
               <polygon points="40,14 60,8 80,14 60,18" fill="#ff3377" stroke="#111" stroke-width="2"/>
-              <!-- カラフルキャップ -->
               <path d="M22,60 Q60,18 98,60 Z" fill="#ff7b00" stroke="#111" stroke-width="4"/>
               <path d="M38,55 Q60,22 60,60 Z" fill="#00f0ff" opacity="0.9"/>
               <path d="M60,22 Q82,55 82,60 Z" fill="#ffe600" opacity="0.9"/>
               <path d="M18,60 Q60,68 102,60 Q106,66 98,70 Q60,76 22,70 Z" fill="#06d6a0" stroke="#111" stroke-width="3.5"/>
-              <!-- 胴体 -->
               <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#e8e8e8" stroke="#111" stroke-width="4"/>
-              <!-- 首 -->
               <rect x="52" y="110" width="16" height="25" rx="5" fill="#d0d0d0" stroke="#111" stroke-width="3"/>
-              <!-- 頭部 -->
               <ellipse cx="60" cy="80" rx="42" ry="38" fill="#f0f0f0" stroke="#111" stroke-width="4.5"/>
-              <!-- 大きな丸目 -->
-              <circle cx="42" cy="78" r="16" fill="#111" stroke="#111" stroke-width="2"/>
-              <circle cx="78" cy="78" r="16" fill="#111" stroke="#111" stroke-width="2"/>
+              <circle cx="42" cy="78" r="16" fill="#111"/>
+              <circle cx="78" cy="78" r="16" fill="#111"/>
               <circle cx="44" cy="75" r="5" fill="#ffffff"/>
               <circle cx="80" cy="75" r="5" fill="#ffffff"/>
-              <!-- ドヤ顔お口 -->
               <path d="M48,102 Q60,112 72,102" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
             </svg>
           `;
 
-        case "hihat": // Sky / シアンヘッドホン・バイザー
+        case "hihat":
           return `
             <svg class="sprunki-svg-character" viewBox="0 0 120 220">
-              <!-- ヘッドホンバンド -->
               <path d="M16,70 Q60,10 104,70" fill="none" stroke="#0077b6" stroke-width="9" stroke-linecap="round"/>
-              <!-- ヘッドホンイヤーカップ -->
               <rect x="8" y="55" width="16" height="34" rx="8" fill="#00b4d8" stroke="#111" stroke-width="3.5"/>
               <rect x="96" y="55" width="16" height="34" rx="8" fill="#00b4d8" stroke="#111" stroke-width="3.5"/>
-              <!-- 胴体 -->
               <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#00f0ff" stroke="#111" stroke-width="4"/>
-              <!-- 首 -->
               <rect x="52" y="110" width="16" height="25" rx="5" fill="#00c8e0" stroke="#111" stroke-width="3"/>
-              <!-- 頭部 -->
               <ellipse cx="60" cy="72" rx="42" ry="42" fill="#48cae4" stroke="#111" stroke-width="4.5"/>
-              <!-- スタイリッシュアイ -->
               <ellipse cx="43" cy="72" rx="14" ry="12" fill="#fff" stroke="#111" stroke-width="3.5"/>
               <ellipse cx="77" cy="72" rx="14" ry="12" fill="#fff" stroke="#111" stroke-width="3.5"/>
               <circle cx="43" cy="72" r="7" fill="#03045e"/>
               <circle cx="77" cy="72" r="7" fill="#03045e"/>
               <circle cx="40" cy="69" r="2.5" fill="#fff"/>
               <circle cx="74" cy="69" r="2.5" fill="#fff"/>
-              <!-- お口（ビート刻み） -->
               <ellipse cx="60" cy="95" rx="7" ry="5" fill="#111"/>
             </svg>
           `;
 
-        case "bass": // Vineria / パープルヘイロー（天使の輪）
+        case "bass":
           return `
             <svg class="sprunki-svg-character" viewBox="0 0 120 220">
-              <!-- 浮遊する天使の輪（ヘイロー） -->
               <ellipse cx="40" cy="24" rx="26" ry="9" fill="none" stroke="#e0aaff" stroke-width="5" transform="rotate(-15 40 24)"/>
               <ellipse cx="40" cy="24" rx="26" ry="9" fill="none" stroke="#ffffff" stroke-width="2" transform="rotate(-15 40 24)"/>
-              <!-- 胴体 -->
               <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#7b2cbf" stroke="#111" stroke-width="4"/>
-              <!-- 首 -->
               <rect x="52" y="110" width="16" height="25" rx="5" fill="#5a189a" stroke="#111" stroke-width="3"/>
-              <!-- 頭部 -->
               <ellipse cx="60" cy="72" rx="43" ry="43" fill="#c77dff" stroke="#111" stroke-width="4.5"/>
-              <!-- 半開き・チルな目元 -->
               <ellipse cx="43" cy="72" rx="14" ry="13" fill="#fff" stroke="#111" stroke-width="3.5"/>
               <ellipse cx="77" cy="72" rx="14" ry="13" fill="#fff" stroke="#111" stroke-width="3.5"/>
               <path d="M29,66 Q43,62 57,66 Z" fill="#9d4edd" stroke="#111" stroke-width="2.5"/>
               <path d="M63,66 Q77,62 91,66 Z" fill="#9d4edd" stroke="#111" stroke-width="2.5"/>
               <circle cx="43" cy="74" r="6" fill="#240046"/>
               <circle cx="77" cy="74" r="6" fill="#240046"/>
-              <!-- クールな微笑み -->
               <path d="M50,96 Q62,104 70,95" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
             </svg>
           `;
 
-        case "synth": // Garnold / ゴールドアンテナ
+        case "synth":
           return `
             <svg class="sprunki-svg-character" viewBox="0 0 120 220">
-              <!-- トップアンテナ -->
               <path d="M60,32 L60,8" stroke="#cca000" stroke-width="5" stroke-linecap="round"/>
               <circle cx="60" cy="8" r="11" fill="#ffe600" stroke="#111" stroke-width="3.5"/>
               <circle cx="58" cy="6" r="3" fill="#fff"/>
-              <!-- 胴体 -->
               <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#e5a100" stroke="#111" stroke-width="4"/>
-              <!-- 首 -->
               <rect x="52" y="110" width="16" height="25" rx="5" fill="#cca000" stroke="#111" stroke-width="3"/>
-              <!-- 頭部 -->
               <ellipse cx="60" cy="72" rx="43" ry="43" fill="#ffc300" stroke="#111" stroke-width="4.5"/>
-              <!-- まったり半目 -->
               <ellipse cx="43" cy="72" rx="14" ry="13" fill="#fff" stroke="#111" stroke-width="3.5"/>
               <ellipse cx="77" cy="72" rx="14" ry="13" fill="#fff" stroke="#111" stroke-width="3.5"/>
               <path d="M29,67 L57,67 Z" fill="#cca000" stroke="#111" stroke-width="3"/>
               <path d="M63,67 L91,67 Z" fill="#cca000" stroke="#111" stroke-width="3"/>
               <circle cx="43" cy="75" r="6" fill="#111"/>
               <circle cx="77" cy="75" r="6" fill="#111"/>
-              <!-- まったり口 -->
               <path d="M52,96 L68,96" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
             </svg>
           `;
 
-        case "sparkle": // Raddy / ピンクウーパールーパー＆サングラス
+        case "sparkle":
           return `
             <svg class="sprunki-svg-character" viewBox="0 0 120 220">
-              <!-- ウーパールーパーの耳ヒレ -->
               <path d="M18,65 Q0,45 8,78 Q-5,85 16,92 Z" fill="#ff758f" stroke="#111" stroke-width="3"/>
               <path d="M102,65 Q120,45 112,78 Q125,85 104,92 Z" fill="#ff758f" stroke="#111" stroke-width="3"/>
-              <!-- 胴体 -->
               <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#ff4d6d" stroke="#111" stroke-width="4"/>
-              <!-- 首 -->
               <rect x="52" y="110" width="16" height="25" rx="5" fill="#c9184a" stroke="#111" stroke-width="3"/>
-              <!-- 頭部 -->
               <ellipse cx="60" cy="72" rx="43" ry="41" fill="#ff758f" stroke="#111" stroke-width="4.5"/>
-              <!-- クールな黒サングラス -->
-              <polygon points="22,60 56,60 52,82 28,82" fill="#111111" stroke="#000" stroke-width="2"/>
-              <polygon points="64,60 98,60 92,82 68,82" fill="#111111" stroke="#000" stroke-width="2"/>
+              <polygon points="22,60 56,60 52,82 28,82" fill="#111111"/>
+              <polygon points="64,60 98,60 92,82 68,82" fill="#111111"/>
               <rect x="53" y="62" width="14" height="6" fill="#111"/>
               <line x1="32" y1="64" x2="32" y2="78" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>
               <line x1="74" y1="64" x2="74" y2="78" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>
-              <!-- スマイル -->
               <path d="M50,96 Q60,104 70,96" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
             </svg>
           `;
 
-        case "voice": // Gray Cat / ホワイトキャットイヤー＆フーディ
+        case "voice":
           return `
             <svg class="sprunki-svg-character" viewBox="0 0 120 220">
-              <!-- ネコミミ -->
               <polygon points="26,45 16,10 46,30" fill="#e8e8e8" stroke="#111" stroke-width="3.5"/>
               <polygon points="28,40 22,20 42,32" fill="#ffb3c1"/>
               <polygon points="94,45 104,10 74,30" fill="#e8e8e8" stroke="#111" stroke-width="3.5"/>
               <polygon points="92,40 98,20 78,32" fill="#ffb3c1"/>
-              <!-- 胴体＆フーディ -->
               <path d="M45,130 Q40,180 30,220 L90,220 Q80,180 75,130 Z" fill="#6c757d" stroke="#111" stroke-width="4"/>
-              <!-- フードの襟 -->
               <path d="M38,110 Q60,126 82,110 Q90,122 60,128 Q30,122 38,110 Z" fill="#adb5bd" stroke="#111" stroke-width="3"/>
-              <!-- 頭部 -->
               <ellipse cx="60" cy="72" rx="43" ry="41" fill="#f8f9fa" stroke="#111" stroke-width="4.5"/>
-              <!-- クリクリおめめ -->
               <circle cx="43" cy="72" r="16" fill="#111"/>
               <circle cx="77" cy="72" r="16" fill="#111"/>
               <circle cx="45" cy="69" r="5" fill="#fff"/>
               <circle cx="79" cy="69" r="5" fill="#fff"/>
-              <!-- ニャンコのお口 -->
               <path d="M52,94 Q56,98 60,94 Q64,98 68,94" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
             </svg>
           `;
@@ -1285,7 +1605,7 @@
       }
     }
 
-    // --- Web Audio API & サウンドエンジン ---
+    // --- Web Audio API & サウンドエンジン（通常音 ＆ ホラー恐怖音） ---
     let audioCtx = null;
     let isPlaying = true;
     let currentBeat = 0;
@@ -1302,7 +1622,7 @@
       }
     }
 
-    // デフォルトキャラクター定義（シンセ＆ビートサウンド）
+    // デフォルトキャラクター定義（通常サウンド ＆ ホラーサウンド）
     const DEFAULT_CHARACTERS = [
       {
         id: "kick_snare",
@@ -1310,8 +1630,9 @@
         type: "BEAT",
         color: "#ff7b00",
         icon: "🧢",
+        horrorIcon: "💀",
         isDefault: true,
-        play: (time, beat) => {
+        playNormal: (time, beat) => {
           if (beat % 2 === 0) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -1335,6 +1656,34 @@
             osc.start(time);
             osc.stop(time + 0.15);
           }
+        },
+        playHorror: (time, beat) => {
+          // 重低音心臓パルス ＆ 歪んだ破壊スネア
+          if (beat % 2 === 0) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(85, time);
+            osc.frequency.exponentialRampToValueAtTime(15, time + 0.35);
+            gain.gain.setValueAtTime(0.55, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.35);
+          } else {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(450, time);
+            osc.frequency.exponentialRampToValueAtTime(40, time + 0.2);
+            gain.gain.setValueAtTime(0.35, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.2);
+          }
         }
       },
       {
@@ -1343,8 +1692,9 @@
         type: "BEAT",
         color: "#00f0ff",
         icon: "🎧",
+        horrorIcon: "⚡",
         isDefault: true,
-        play: (time, beat) => {
+        playNormal: (time, beat) => {
           [0, 0.25].forEach(offset => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -1357,6 +1707,22 @@
             osc.start(time + offset);
             osc.stop(time + offset + 0.05);
           });
+        },
+        playHorror: (time, beat) => {
+          // 金属摩擦グリッチ・ノイズチャープ
+          [0, 0.25].forEach(offset => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(3200 + Math.random() * 4000, time + offset);
+            osc.frequency.exponentialRampToValueAtTime(300, time + offset + 0.08);
+            gain.gain.setValueAtTime(0.16, time + offset);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + offset + 0.08);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time + offset);
+            osc.stop(time + offset + 0.08);
+          });
         }
       },
       {
@@ -1365,8 +1731,9 @@
         type: "BASS",
         color: "#9d4edd",
         icon: "😇",
+        horrorIcon: "😈",
         isDefault: true,
-        play: (time, beat) => {
+        playNormal: (time, beat) => {
           const notes = [65.41, 73.42, 82.41, 98.00];
           const freq = notes[beat % 4];
           const osc = audioCtx.createOscillator();
@@ -1379,6 +1746,22 @@
           gain.connect(audioCtx.destination);
           osc.start(time);
           osc.stop(time + 0.4);
+        },
+        playHorror: (time, beat) => {
+          // 悪魔の音程（トライトーン）低音ドローン
+          const horrorNotes = [43.65, 46.25, 41.20, 38.89]; // F1, F#1, E1, D#1 不穏な半音進行
+          const freq = horrorNotes[beat % 4];
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(freq, time);
+          osc.frequency.linearRampToValueAtTime(freq * 0.95, time + 0.45);
+          gain.gain.setValueAtTime(0.35, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.45);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(time);
+          osc.stop(time + 0.45);
         }
       },
       {
@@ -1387,8 +1770,9 @@
         type: "MELODY",
         color: "#ffe600",
         icon: "🤖",
+        horrorIcon: "🩸",
         isDefault: true,
-        play: (time, beat) => {
+        playNormal: (time, beat) => {
           const chordNotes = [
             [523.25, 659.25],
             [587.33, 698.46],
@@ -1408,6 +1792,29 @@
             osc.start(time);
             osc.stop(time + 0.35);
           });
+        },
+        playHorror: (time, beat) => {
+          // 呪われたオルゴール・不気味な減和音（ディミニッシュ）
+          const horrorChords = [
+            [622.25, 880.00], // D#5, A5 (トライトーン)
+            [587.33, 830.61], // D5, G#5
+            [523.25, 739.99], // C5, F#5
+            [493.88, 698.46]  // B4, F5
+          ];
+          const freqs = horrorChords[beat % 4];
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(f, time + idx * 0.04);
+            osc.frequency.exponentialRampToValueAtTime(f * 0.98, time + idx * 0.04 + 0.4);
+            gain.gain.setValueAtTime(0.18, time + idx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + idx * 0.04 + 0.4);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time + idx * 0.04);
+            osc.stop(time + idx * 0.04 + 0.4);
+          });
         }
       },
       {
@@ -1416,8 +1823,9 @@
         type: "EFFECT",
         color: "#ff4d6d",
         icon: "🕶️",
+        horrorIcon: "👁️",
         isDefault: true,
-        play: (time, beat) => {
+        playNormal: (time, beat) => {
           if (beat % 2 === 0) {
             [1046.5, 1318.5, 1567.98].forEach((f, idx) => {
               const osc = audioCtx.createOscillator();
@@ -1432,6 +1840,22 @@
               osc.stop(time + idx * 0.08 + 0.25);
             });
           }
+        },
+        playHorror: (time, beat) => {
+          // 金切り声のようなFM変調ベル
+          if (beat % 2 === 0) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(1800, time);
+            osc.frequency.exponentialRampToValueAtTime(450, time + 0.35);
+            gain.gain.setValueAtTime(0.18, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.35);
+          }
         }
       },
       {
@@ -1440,8 +1864,9 @@
         type: "VOICE",
         color: "#adb5bd",
         icon: "🐱",
+        horrorIcon: "🧟",
         isDefault: true,
-        play: (time, beat) => {
+        playNormal: (time, beat) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = "square";
@@ -1453,6 +1878,20 @@
           gain.connect(audioCtx.destination);
           osc.start(time);
           osc.stop(time + 0.25);
+        },
+        playHorror: (time, beat) => {
+          // 怨霊の囁き・怪奇ボイス
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(160, time);
+          osc.frequency.linearRampToValueAtTime(80, time + 0.3);
+          gain.gain.setValueAtTime(0.2, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(time);
+          osc.stop(time + 0.3);
         }
       }
     ];
@@ -1460,7 +1899,6 @@
     let customCharacters = [];
     let allCharacters = [...DEFAULT_CHARACTERS];
 
-    // ステージスロットの状態（7枠）
     const slotStates = Array(TOTAL_SLOTS).fill(null).map(() => ({
       character: null,
       isMuted: false
@@ -1475,12 +1913,50 @@
     const clearAllBtn = document.getElementById("clearAllBtn");
     const bpmButtons = document.querySelectorAll(".bpm-btn");
     const bpmDisplay = document.getElementById("bpmDisplay");
+    const modeToggleBtn = document.getElementById("modeToggleBtn");
+    const modeIcon = document.getElementById("modeIcon");
+    const modeText = document.getElementById("modeText");
+    const flashOverlay = document.getElementById("flashOverlay");
+    const paletteTitleText = document.getElementById("paletteTitleText");
+    const statusNote = document.getElementById("statusNote");
     const dots = [
       document.getElementById("dot1"),
       document.getElementById("dot2"),
       document.getElementById("dot3"),
       document.getElementById("dot4")
     ];
+
+    // --- ホラーモード切り替え処理 ---
+    function toggleHorrorMode() {
+      initAudio();
+      isHorrorMode = !isHorrorMode;
+
+      // 画面フラッシュ演出
+      flashOverlay.classList.remove("flashing");
+      void flashOverlay.offsetWidth;
+      flashOverlay.classList.add("flashing");
+
+      if (isHorrorMode) {
+        document.body.classList.add("horror-mode");
+        modeIcon.textContent = "🌈";
+        modeText.textContent = "通常モードに戻る";
+        paletteTitleText.textContent = "🩸 狂気のステージにキャラクターを立たせよう...";
+        statusNote.textContent = "💀 ホラーモード起動中... 恐怖のサウンドが響き渡ります";
+        showToast("💀 ホラーモード起動... 裏世界へようこそ");
+      } else {
+        document.body.classList.remove("horror-mode");
+        modeIcon.textContent = "👁️";
+        modeText.textContent = "ホラーモードへ変身";
+        paletteTitleText.textContent = "🎨 キャラクターを選んでステージに立たせよう！";
+        statusNote.textContent = "✨ ホラーモードボタンで恐怖の裏世界へ切り替え可能！";
+        showToast("✨ 平和な通常モードに復帰しました");
+      }
+
+      renderStage();
+      renderPalette();
+    }
+
+    modeToggleBtn.addEventListener("click", toggleHorrorMode);
 
     // --- BPM 切り替え機能 ---
     function setBPM(newBpm) {
@@ -1513,7 +1989,7 @@
       });
     });
 
-    // --- ステージ描画（背景絵 ＆ スプランキー立ち絵） ---
+    // --- ステージ描画 ---
     function renderStage() {
       stageGrid.innerHTML = "";
       slotStates.forEach((slot, index) => {
@@ -1532,29 +2008,27 @@
               <button class="stand-ctrl-btn remove" title="退場">✕</button>
             </div>
             <div class="sprunki-sprite-box">
-              ${getSprunkiCharacterSVG(char, false)}
+              ${getSprunkiCharacterSVG(char, false, isHorrorMode)}
             </div>
-            <div class="stand-name-label" style="border-color:${char.color || '#fff'}">${char.name}</div>
+            <div class="stand-name-label" style="border-color:${isHorrorMode ? '#ff0033' : (char.color || '#fff')}">${char.name}</div>
           `;
 
-          // ミュートボタン
           slotEl.querySelector(".mute").addEventListener("click", (e) => {
             e.stopPropagation();
             slot.isMuted = !slot.isMuted;
             renderStage();
           });
 
-          // 退場ボタン
           slotEl.querySelector(".remove").addEventListener("click", (e) => {
             e.stopPropagation();
             slot.character = null;
             renderStage();
           });
         } else {
-          // 待機中グレー素体キャラ
+          // 待機中キャラ
           slotEl.innerHTML = `
             <div class="sprunki-sprite-box">
-              ${getSprunkiCharacterSVG(null, true)}
+              ${getSprunkiCharacterSVG(null, true, isHorrorMode)}
             </div>
             <div class="stand-name-label" style="opacity: 0.6;">枠 ${index + 1}</div>
           `;
@@ -1605,11 +2079,13 @@
           `;
         }
 
+        const iconDisplay = isHorrorMode ? (char.horrorIcon || char.icon || "💀") : (char.icon || "🌟");
+
         card.innerHTML = `
-          <div class="char-card-type">${char.type || 'OC'}</div>
+          <div class="char-card-type">${isHorrorMode ? 'HORROR' : (char.type || 'OC')}</div>
           ${actionButtonsHtml}
-          <div class="char-card-icon" style="border-color: ${char.color || '#00f0ff'}">
-            ${char.image ? `<img src="${char.image}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">` : char.icon}
+          <div class="char-card-icon" style="border-color: ${isHorrorMode ? '#ff0033' : (char.color || '#00f0ff')}">
+            ${char.image ? `<img src="${char.image}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;${isHorrorMode ? 'filter:invert(0.85) hue-rotate(180deg);' : ''}">` : iconDisplay}
           </div>
           <div class="char-card-name">${char.name}</div>
         `;
@@ -1756,7 +2232,7 @@
       return buffer;
     }
 
-    // --- メインループ（BPM同期シーケンサー） ---
+    // --- メインループ（通常 ＆ ホラーサウンド切り替え再生） ---
     function stepBeat() {
       if (!isPlaying) return;
       initAudio();
@@ -1772,11 +2248,19 @@
       slotStates.forEach(slot => {
         if (slot.character && !slot.isMuted) {
           const char = slot.character;
-          if (char.isDefault && char.play) {
-            char.play(time, currentBeat);
+          if (char.isDefault) {
+            if (isHorrorMode && char.playHorror) {
+              char.playHorror(time, currentBeat);
+            } else if (char.playNormal) {
+              char.playNormal(time, currentBeat);
+            }
           } else if (char.audioBuffer) {
+            // カスタムOCの音声（ホラー時は少し低速・ピッチシフト再生）
             const src = audioCtx.createBufferSource();
             src.buffer = char.audioBuffer;
+            if (isHorrorMode) {
+              src.playbackRate.setValueAtTime(0.75, time); // おどろおどろしい低速再生
+            }
             src.connect(audioCtx.destination);
             src.start(time);
           }
@@ -1937,6 +2421,7 @@
         type: "OC",
         color: "#" + Math.floor(Math.random()*16777215).toString(16),
         icon: "🌟",
+        horrorIcon: "🩸",
         image: uploadedImageData,
         rawAudioBuffer: customRawAudioBuffer,
         audioBuffer: customAudioBuffer,
