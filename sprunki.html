@@ -7,7 +7,7 @@
   <meta name="description" content="画像と音声を自由にアップロードして自分だけのキャラクター（OC）を作れるビートボックス・音楽ミキシングゲーム！">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Fredoka:wght@600;700;900&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -22,6 +22,7 @@
       --accent-yellow: #ffe600;
       --accent-purple: #9d4edd;
       --accent-green: #06d6a0;
+      --beat-speed: 0.5s; /* BPM120で0.5s */
     }
 
     * {
@@ -53,6 +54,8 @@
       align-items: center;
       margin-bottom: 12px;
       padding: 0 8px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .nav-btn {
@@ -63,25 +66,73 @@
       text-decoration: none;
       background: rgba(0, 240, 255, 0.1);
       border: 1px solid rgba(0, 240, 255, 0.3);
-      padding: 6px 14px;
+      padding: 7px 16px;
       border-radius: 20px;
       transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
     .nav-btn:hover {
       background: rgba(0, 240, 255, 0.25);
-      box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+      transform: translateY(-1px);
+    }
+
+    /* BPM コントロールエリア */
+    .bpm-control-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .bpm-selector {
+      display: flex;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      gap: 3px;
+    }
+
+    .bpm-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-family: 'Fredoka', 'Zen Maru Gothic', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .bpm-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .bpm-btn.active {
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, #00b4d8 100%);
+      color: #0b111e;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+      font-weight: 900;
     }
 
     .bpm-badge {
       font-family: 'Fredoka', sans-serif;
       font-size: 0.9rem;
+      font-weight: 700;
       background: rgba(255, 255, 255, 0.08);
-      padding: 4px 14px;
+      padding: 5px 14px;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.15);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .beat-dot {
@@ -93,8 +144,8 @@
     }
     .beat-dot.active {
       background: var(--accent-pink);
-      box-shadow: 0 0 10px var(--accent-pink);
-      transform: scale(1.3);
+      box-shadow: 0 0 12px var(--accent-pink);
+      transform: scale(1.35);
     }
 
     /* メインゲームエリア */
@@ -126,12 +177,12 @@
       align-items: end;
     }
 
-    @media (max-width: 820px) {
+    @media (max-width: 860px) {
       .stage-area {
         grid-template-columns: repeat(4, 1fr);
       }
     }
-    @media (max-width: 480px) {
+    @media (max-width: 520px) {
       .stage-area {
         grid-template-columns: repeat(3, 1fr);
       }
@@ -227,9 +278,9 @@
       font-size: 2.5rem;
     }
 
-    /* ビート同期アニメーション */
+    /* ビート同期アニメーション（BPMによって可変） */
     .bouncing .char-avatar {
-      animation: beatBounce 0.5s infinite ease-in-out alternate;
+      animation: beatBounce var(--beat-speed) infinite ease-in-out alternate;
     }
 
     @keyframes beatBounce {
@@ -291,6 +342,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .palette-title {
@@ -305,7 +358,7 @@
       display: flex;
       gap: 12px;
       overflow-x: auto;
-      padding: 6px 4px 12px;
+      padding: 8px 4px 14px;
     }
 
     .palette-grid::-webkit-scrollbar {
@@ -318,8 +371,8 @@
 
     /* キャラクターカード（パレット内） */
     .char-card {
-      flex: 0 0 84px;
-      height: 110px;
+      flex: 0 0 88px;
+      height: 116px;
       background: rgba(255, 255, 255, 0.05);
       border: 2px solid rgba(255, 255, 255, 0.12);
       border-radius: 20px;
@@ -333,9 +386,9 @@
     }
 
     .char-card:hover {
-      transform: translateY(-6px) scale(1.06);
+      transform: translateY(-6px) scale(1.05);
       border-color: var(--accent-cyan);
-      box-shadow: 0 10px 20px rgba(0, 240, 255, 0.2);
+      box-shadow: 0 10px 20px rgba(0, 240, 255, 0.25);
     }
 
     .char-card:active {
@@ -364,23 +417,66 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 76px;
+      max-width: 80px;
     }
 
     .char-card-type {
       position: absolute;
       top: 4px;
+      left: 4px;
+      font-size: 0.58rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* 自作OCカードのアクションボタン（ファイル保存・削除） */
+    .char-card-actions {
+      position: absolute;
+      top: 4px;
       right: 4px;
-      font-size: 0.6rem;
-      padding: 1px 4px;
-      border-radius: 4px;
-      background: rgba(0,0,0,0.5);
+      display: flex;
+      gap: 3px;
+      opacity: 0;
+      transform: translateY(-3px);
+      transition: all 0.2s ease;
+    }
+    .char-card:hover .char-card-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .char-action-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(18, 20, 32, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .char-action-btn:hover {
+      transform: scale(1.2);
+    }
+    .char-action-btn.export:hover {
+      background: var(--accent-cyan);
+      color: #000;
+    }
+    .char-action-btn.delete:hover {
+      background: #ff4757;
+      color: #fff;
     }
 
     /* 新規OC作成ボタン */
     .create-oc-btn {
-      flex: 0 0 84px;
-      height: 110px;
+      flex: 0 0 88px;
+      height: 116px;
       background: linear-gradient(135deg, rgba(255, 51, 119, 0.15) 0%, rgba(157, 78, 221, 0.15) 100%);
       border: 2px dashed var(--accent-pink);
       border-radius: 20px;
@@ -396,15 +492,42 @@
       gap: 6px;
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-
     .create-oc-btn:hover {
       background: linear-gradient(135deg, rgba(255, 51, 119, 0.3) 0%, rgba(157, 78, 221, 0.3) 100%);
-      transform: translateY(-6px) scale(1.06);
-      box-shadow: 0 10px 20px rgba(255, 51, 119, 0.3);
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(255, 51, 119, 0.35);
     }
-
     .create-oc-btn .plus-icon {
       font-size: 2rem;
+      line-height: 1;
+    }
+
+    /* ファイル読込ボタン */
+    .import-oc-btn {
+      flex: 0 0 88px;
+      height: 116px;
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.12) 0%, rgba(6, 214, 160, 0.12) 100%);
+      border: 2px dashed var(--accent-cyan);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-cyan);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.75rem;
+      gap: 6px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .import-oc-btn:hover {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.25) 0%, rgba(6, 214, 160, 0.25) 100%);
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(0, 240, 255, 0.35);
+    }
+    .import-oc-btn .import-icon {
+      font-size: 1.8rem;
       line-height: 1;
     }
 
@@ -421,6 +544,7 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .main-btn {
@@ -583,18 +707,64 @@
       gap: 10px;
       margin-top: 24px;
     }
+
+    /* トースト通知 */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast-item {
+      background: rgba(26, 29, 46, 0.95);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 240, 255, 0.3);
+      font-size: 0.88rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), toastOut 0.3s ease 2.7s forwards;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    }
   </style>
 </head>
 <body>
 
   <header>
     <a href="index.html" class="nav-btn">🏠 ホームへ戻る</a>
-    <div class="bpm-badge">
-      <span>BPM 120</span>
-      <div class="beat-dot" id="dot1"></div>
-      <div class="beat-dot" id="dot2"></div>
-      <div class="beat-dot" id="dot3"></div>
-      <div class="beat-dot" id="dot4"></div>
+
+    <!-- BPM 4段階セレクター ＆ LEDインジケーター -->
+    <div class="bpm-control-container">
+      <div class="bpm-selector">
+        <button class="bpm-btn" data-bpm="80" title="ゆったりテンポ">🐢 80</button>
+        <button class="bpm-btn" data-bpm="100" title="軽快なテンポ">🚶 100</button>
+        <button class="bpm-btn active" data-bpm="120" title="標準テンポ">🏃 120</button>
+        <button class="bpm-btn" data-bpm="145" title="アップテンポ・高速">⚡ 145</button>
+      </div>
+      <div class="bpm-badge">
+        <span id="bpmDisplay">BPM 120</span>
+        <div class="beat-dot" id="dot1"></div>
+        <div class="beat-dot" id="dot2"></div>
+        <div class="beat-dot" id="dot3"></div>
+        <div class="beat-dot" id="dot4"></div>
+      </div>
     </div>
   </header>
 
@@ -604,13 +774,13 @@
       <!-- JSで7スロット生成 -->
     </div>
 
-    <!-- キャラクターパレット（一覧 ＆ OC追加ボタン） -->
+    <!-- キャラクターパレット（一覧 ＆ OC追加/読込ボタン） -->
     <section class="palette-section">
       <div class="palette-header">
         <div class="palette-title">
           <span>🎨 キャラクターを選んでスロットに置こう！</span>
         </div>
-        <span style="font-size: 0.8rem; color: var(--text-muted);">（ドラッグまたはクリックで配置）</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">（ドラッグまたはクリックで配置 / 自作OCは自動保存されます）</span>
       </div>
 
       <div class="palette-grid" id="paletteGrid">
@@ -619,6 +789,14 @@
           <span class="plus-icon">＋</span>
           <span>自作OC追加</span>
         </button>
+
+        <!-- ファイルからキャラ読込ボタン -->
+        <button class="import-oc-btn" id="importOcBtn" title="保存したキャラファイル (.json / .sprunki) を読み込む">
+          <span class="import-icon">📂</span>
+          <span>ファイル読込</span>
+        </button>
+        <input type="file" id="importFileInput" accept=".json,.sprunki" style="display: none;">
+
         <!-- JSでキャラクターカード生成 -->
       </div>
     </section>
@@ -636,10 +814,13 @@
       </div>
 
       <div class="ctrl-group">
-        <span style="font-size: 0.85rem; color: var(--text-muted);">🎧 好きな絵と音でオリジナルキャラを作って鳴らそう！</span>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">💾 自作OCはブラウザに自動保存＆「💾」でPCにファイル書き出し可能！</span>
       </div>
     </div>
   </main>
+
+  <!-- トースト通知コンテナ -->
+  <div class="toast-container" id="toastContainer"></div>
 
   <!-- OC作成モーダル -->
   <div class="modal-overlay" id="ocModal">
@@ -677,27 +858,169 @@
 
       <div class="modal-actions">
         <button class="secondary-btn" style="flex: 1;" id="closeModalBtn">キャンセル</button>
-        <button class="main-btn" style="flex: 1;" id="saveOcBtn">キャラを登録する！</button>
+        <button class="main-btn" style="flex: 1;" id="saveOcBtn">ブラウザに登録・保存！</button>
       </div>
     </div>
   </div>
 
   <script>
+    // --- IndexedDB ストレージ管理モジュール ---
+    const DB_NAME = "SprunkiBeatDB";
+    const DB_VERSION = 1;
+    const STORE_NAME = "custom_characters";
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: "id" });
+          }
+        };
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function dbSaveCharacter(char) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        const record = {
+          id: char.id,
+          name: char.name,
+          type: char.type || "OC",
+          color: char.color,
+          icon: char.icon,
+          image: char.image || null,
+          rawAudioBuffer: char.rawAudioBuffer || null,
+          createdAt: char.createdAt || Date.now()
+        };
+        const req = store.put(record);
+        req.onsuccess = () => resolve(true);
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function dbLoadCharacters() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function dbDeleteCharacter(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve(true);
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    // --- バイナリ変換ヘルパー ---
+    function arrayBufferToBase64(buffer) {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return window.btoa(binary);
+    }
+
+    function base64ToArrayBuffer(base64) {
+      const binaryString = window.atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    function audioBufferToWavArrayBuffer(buffer) {
+      const numChannels = buffer.numberOfChannels;
+      const sampleRate = buffer.sampleRate;
+      const format = 1; // PCM
+      const bitDepth = 16;
+      const bytesPerSample = bitDepth / 8;
+      const blockAlign = numChannels * bytesPerSample;
+      const length = buffer.length * numChannels * bytesPerSample;
+      const bufferOut = new ArrayBuffer(44 + length);
+      const view = new DataView(bufferOut);
+
+      function writeString(view, offset, string) {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      }
+
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + length, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, format, true);
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * blockAlign, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, bitDepth, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, length, true);
+
+      let offset = 44;
+      for (let i = 0; i < buffer.length; i++) {
+        for (let channel = 0; channel < numChannels; channel++) {
+          let sample = buffer.getChannelData(channel)[i];
+          sample = Math.max(-1, Math.min(1, sample));
+          sample = (sample < 0 ? sample * 32768 : sample * 32767) | 0;
+          view.setInt16(offset, sample, true);
+          offset += 2;
+        }
+      }
+      return bufferOut;
+    }
+
+    // --- トースト通知表示 ---
+    function showToast(message) {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = "toast-item";
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 3000);
+    }
+
     // --- Web Audio API & サウンドエンジン ---
     let audioCtx = null;
     let isPlaying = true;
     let currentBeat = 0;
-    const BPM = 120;
-    const BEAT_INTERVAL = (60 / BPM) * 1000; // 500ms
+    let currentBPM = 120;
+    let loopInterval = null;
     const TOTAL_SLOTS = 7;
 
     function initAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
     }
 
-    // デフォルトキャラクター定義（Web Audio APIによるシンセ＆ビートサウンド）
+    // デフォルトキャラクター定義（シンセ＆ビートサウンド）
     const DEFAULT_CHARACTERS = [
       {
         id: "kick_snare",
@@ -707,7 +1030,6 @@
         icon: "🥁",
         isDefault: true,
         play: (time, beat) => {
-          // ドッ・パッ（1, 3拍目にキック、2, 4拍目にスネア）
           if (beat % 2 === 0) {
             // Kick
             const osc = audioCtx.createOscillator();
@@ -721,7 +1043,7 @@
             osc.start(time);
             osc.stop(time + 0.25);
           } else {
-            // Snare (Noise + Tone)
+            // Snare
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = "triangle";
@@ -743,7 +1065,6 @@
         icon: "🎩",
         isDefault: true,
         play: (time, beat) => {
-          // チキチキ（毎拍＋裏拍）
           [0, 0.25].forEach(offset => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -841,7 +1162,6 @@
         icon: "🎤",
         isDefault: true,
         play: (time, beat) => {
-          // 「イェイ！」のようなフォルマント風トーン
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = "square";
@@ -857,9 +1177,9 @@
       }
     ];
 
-    // ユーザー作成のカスタムOCリスト（localStorage保存）
-    let customCharacters = JSON.parse(localStorage.getItem("sprunki_custom_ocs") || "[]");
-    let allCharacters = [...DEFAULT_CHARACTERS, ...customCharacters];
+    // キャラクターリスト（デフォルト + IndexedDBから復元したOC）
+    let customCharacters = [];
+    let allCharacters = [...DEFAULT_CHARACTERS];
 
     // ステージスロットの状態（7枠）
     const slotStates = Array(TOTAL_SLOTS).fill(null).map(() => ({
@@ -874,12 +1194,48 @@
     const playIcon = document.getElementById("playIcon");
     const playText = document.getElementById("playText");
     const clearAllBtn = document.getElementById("clearAllBtn");
+    const bpmButtons = document.querySelectorAll(".bpm-btn");
+    const bpmDisplay = document.getElementById("bpmDisplay");
     const dots = [
       document.getElementById("dot1"),
       document.getElementById("dot2"),
       document.getElementById("dot3"),
       document.getElementById("dot4")
     ];
+
+    // --- BPM 切り替え機能 ---
+    function setBPM(newBpm) {
+      currentBPM = parseInt(newBpm, 10);
+      bpmDisplay.textContent = `BPM ${currentBPM}`;
+
+      // ボタンのアクティブ状態更新
+      bpmButtons.forEach(btn => {
+        if (parseInt(btn.dataset.bpm, 10) === currentBPM) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+
+      // CSSアニメーション速度（ビートに同期）
+      const beatDurationSec = (60 / currentBPM);
+      document.documentElement.style.setProperty('--beat-speed', `${beatDurationSec}s`);
+
+      // シーケンサーのタイマー再起動
+      if (loopInterval) {
+        clearInterval(loopInterval);
+        loopInterval = setInterval(stepBeat, beatDurationSec * 1000);
+      }
+
+      showToast(`⚡ テンポを ${currentBPM} BPM に変更しました！`);
+    }
+
+    bpmButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        initAudio();
+        setBPM(btn.dataset.bpm);
+      });
+    });
 
     // --- ステージスロット描画 ---
     function renderStage() {
@@ -890,7 +1246,6 @@
         slotEl.dataset.slotIndex = index;
 
         if (slot.character) {
-          // キャラクター配置中
           const char = slot.character;
           slotEl.innerHTML = `
             <div class="active-character-wrapper">
@@ -914,7 +1269,7 @@
             renderStage();
           });
 
-          // 削除ボタン
+          // 外すボタン
           slotEl.querySelector(".remove").addEventListener("click", (e) => {
             e.stopPropagation();
             slot.character = null;
@@ -959,7 +1314,7 @@
 
     // --- パレット描画 ---
     function renderPalette() {
-      // 既存のキャラカードを削除（OC作成ボタンは残す）
+      // 既存のキャラカードを削除
       const cards = paletteGrid.querySelectorAll(".char-card");
       cards.forEach(c => c.remove());
 
@@ -969,8 +1324,20 @@
         card.draggable = true;
         card.dataset.charId = char.id;
 
+        // 自作OCならファイル保存・削除ボタンを追加
+        let actionButtonsHtml = "";
+        if (!char.isDefault) {
+          actionButtonsHtml = `
+            <div class="char-card-actions">
+              <button class="char-action-btn export" title="ファイルに保存 (.sprunki)">💾</button>
+              <button class="char-action-btn delete" title="キャラを削除">🗑️</button>
+            </div>
+          `;
+        }
+
         card.innerHTML = `
           <div class="char-card-type">${char.type || 'OC'}</div>
+          ${actionButtonsHtml}
           <div class="char-card-icon" style="border-color: ${char.color || '#00f0ff'}">
             ${char.image ? `<img src="${char.image}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">` : char.icon}
           </div>
@@ -982,8 +1349,10 @@
           e.dataTransfer.setData("text/plain", char.id);
         });
 
-        // クリックで最初の空きスロットに自動配置
-        card.addEventListener("click", () => {
+        // クリックで最初の空きスロットに配置
+        card.addEventListener("click", (e) => {
+          // アクションボタンのクリックは配置しない
+          if (e.target.closest(".char-action-btn")) return;
           initAudio();
           const firstEmpty = slotStates.find(s => !s.character);
           if (firstEmpty) {
@@ -992,8 +1361,139 @@
           }
         });
 
+        // ファイルエクスポート
+        const exportBtn = card.querySelector(".export");
+        if (exportBtn) {
+          exportBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            exportCharacterToFile(char);
+          });
+        }
+
+        // キャラ削除
+        const deleteBtn = card.querySelector(".delete");
+        if (deleteBtn) {
+          deleteBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            if (confirm(`キャラクター「${char.name}」を削除してもよろしいですか？`)) {
+              await deleteCustomCharacter(char.id);
+            }
+          });
+        }
+
         paletteGrid.appendChild(card);
       });
+    }
+
+    // --- キャラクターのファイルエクスポート（ダウンロード） ---
+    function exportCharacterToFile(char) {
+      let audioBase64 = "";
+      if (char.rawAudioBuffer) {
+        audioBase64 = arrayBufferToBase64(char.rawAudioBuffer);
+      }
+
+      const exportData = {
+        sprunkiOC: true,
+        version: 1,
+        id: char.id,
+        name: char.name,
+        type: char.type || "OC",
+        color: char.color,
+        icon: char.icon,
+        image: char.image || null,
+        audioBase64: audioBase64,
+        exportedAt: new Date().toISOString()
+      };
+
+      const jsonStr = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${char.name}_sprunki.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast(`💾 「${char.name}」をファイル保存しました！`);
+    }
+
+    // --- キャラクターのファイルインポート（読み込み） ---
+    async function importCharacterFile(file) {
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+
+        if (!data.sprunkiOC && !data.name) {
+          throw new Error("スプランキーのキャラファイル形式ではありません。");
+        }
+
+        initAudio();
+        let rawAudioBuffer = null;
+        let decodedAudioBuffer = null;
+
+        if (data.audioBase64) {
+          rawAudioBuffer = base64ToArrayBuffer(data.audioBase64);
+          decodedAudioBuffer = await audioCtx.decodeAudioData(rawAudioBuffer.slice(0));
+        } else {
+          // デフォルトシンセ音生成
+          decodedAudioBuffer = createDefaultSynthBuffer();
+          rawAudioBuffer = audioBufferToWavArrayBuffer(decodedAudioBuffer);
+        }
+
+        const newOc = {
+          id: "oc_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+          name: data.name || "読込キャラ",
+          type: "OC",
+          color: data.color || "#" + Math.floor(Math.random()*16777215).toString(16),
+          icon: data.icon || "🌟",
+          image: data.image || null,
+          rawAudioBuffer: rawAudioBuffer,
+          audioBuffer: decodedAudioBuffer,
+          createdAt: Date.now()
+        };
+
+        // IndexedDBに保存
+        await dbSaveCharacter(newOc);
+
+        customCharacters.push(newOc);
+        allCharacters.push(newOc);
+        renderPalette();
+
+        showToast(`📂 キャラ「${newOc.name}」を読み込みました！`);
+      } catch (err) {
+        console.error(err);
+        alert("キャラファイルの読み込みに失敗しました。正しいファイル形式か確認してください。");
+      }
+    }
+
+    // --- キャラクターの削除 ---
+    async function deleteCustomCharacter(id) {
+      await dbDeleteCharacter(id);
+      customCharacters = customCharacters.filter(c => c.id !== id);
+      allCharacters = [...DEFAULT_CHARACTERS, ...customCharacters];
+
+      // ステージスロットに配置されていたら外す
+      slotStates.forEach(slot => {
+        if (slot.character && slot.character.id === id) {
+          slot.character = null;
+        }
+      });
+
+      renderStage();
+      renderPalette();
+      showToast("🗑️ キャラクターを削除しました");
+    }
+
+    // デフォルトのシンセ音作成ヘルパー
+    function createDefaultSynthBuffer() {
+      const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.3, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < buffer.length; i++) {
+        data[i] = Math.sin(i * 0.05) * Math.exp(-i / (audioCtx.sampleRate * 0.1));
+      }
+      return buffer;
     }
 
     // --- メインループ（BPM同期シーケンサー） ---
@@ -1017,13 +1517,11 @@
           if (char.isDefault && char.play) {
             char.play(time, currentBeat);
           } else if (char.audioBuffer) {
-            // カスタムOCの音声（毎小節 or 毎拍ループ）
-            if (currentBeat % 4 === 0 || char.loopEveryBeat) {
-              const src = audioCtx.createBufferSource();
-              src.buffer = char.audioBuffer;
-              src.connect(audioCtx.destination);
-              src.start(time);
-            }
+            // カスタムOCの音声（毎拍または毎小節鳴らす）
+            const src = audioCtx.createBufferSource();
+            src.buffer = char.audioBuffer;
+            src.connect(audioCtx.destination);
+            src.start(time);
           }
         }
       });
@@ -1031,7 +1529,8 @@
       currentBeat++;
     }
 
-    let loopInterval = setInterval(stepBeat, BEAT_INTERVAL);
+    // シーケンサー開始
+    loopInterval = setInterval(stepBeat, (60 / currentBPM) * 1000);
 
     // 再生 / 一時停止
     playPauseBtn.addEventListener("click", () => {
@@ -1068,18 +1567,45 @@
     const recBtn = document.getElementById("recBtn");
     const recBtnText = document.getElementById("recBtnText");
     const recStatus = document.getElementById("recStatus");
+    const importOcBtn = document.getElementById("importOcBtn");
+    const importFileInput = document.getElementById("importFileInput");
 
     let uploadedImageData = null;
     let customAudioBuffer = null;
+    let customRawAudioBuffer = null;
     let mediaRecorder = null;
     let audioChunks = [];
     let isRecording = false;
+
+    // ファイル読込ボタン
+    importOcBtn.addEventListener("click", () => importFileInput.click());
+    importFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        importCharacterFile(file);
+      }
+      importFileInput.value = "";
+    });
+
+    // ドラッグ＆ドロップでのファイル読込対応
+    window.addEventListener("dragover", (e) => e.preventDefault());
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        if (file.name.endsWith(".json") || file.name.endsWith(".sprunki")) {
+          importCharacterFile(file);
+        }
+      }
+    });
 
     // モーダル開閉
     openModalBtn.addEventListener("click", () => {
       ocModal.classList.add("open");
       uploadedImageData = null;
       customAudioBuffer = null;
+      customRawAudioBuffer = null;
       ocNameInput.value = "";
       imagePreview.style.display = "none";
       audioStatusText.textContent = "🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)";
@@ -1108,8 +1634,8 @@
       const file = e.target.files[0];
       if (file) {
         initAudio();
-        const arrayBuffer = await file.arrayBuffer();
-        customAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        customRawAudioBuffer = await file.arrayBuffer();
+        customAudioBuffer = await audioCtx.decodeAudioData(customRawAudioBuffer.slice(0));
         audioStatusText.textContent = `✅ 音声読み込み完了: ${file.name}`;
       }
     });
@@ -1126,8 +1652,8 @@
           mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
           mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-            const arrayBuffer = await audioBlob.arrayBuffer();
-            customAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            customRawAudioBuffer = await audioBlob.arrayBuffer();
+            customAudioBuffer = await audioCtx.decodeAudioData(customRawAudioBuffer.slice(0));
             recStatus.textContent = "🎉 録音完了！";
             audioStatusText.textContent = "✅ マイク録音の音声をセットしました";
           };
@@ -1148,9 +1674,17 @@
       }
     });
 
-    // OC保存
-    saveOcBtn.addEventListener("click", () => {
+    // OC登録＆IndexedDB保存
+    saveOcBtn.addEventListener("click", async () => {
+      initAudio();
       const name = ocNameInput.value.trim() || "マイキャラ";
+
+      // 音声が未設定の場合はデフォルト音声を自動合成＆WAV化
+      if (!customAudioBuffer) {
+        customAudioBuffer = createDefaultSynthBuffer();
+        customRawAudioBuffer = audioBufferToWavArrayBuffer(customAudioBuffer);
+      }
+
       const newOc = {
         id: "oc_" + Date.now(),
         name: name,
@@ -1158,18 +1692,16 @@
         color: "#" + Math.floor(Math.random()*16777215).toString(16),
         icon: "🌟",
         image: uploadedImageData,
-        audioBuffer: customAudioBuffer
+        rawAudioBuffer: customRawAudioBuffer,
+        audioBuffer: customAudioBuffer,
+        createdAt: Date.now()
       };
 
-      // 音声が設定されていない場合はデフォルトのピコピコ音を自動生成
-      if (!customAudioBuffer) {
-        initAudio();
-        const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.3, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < buffer.length; i++) {
-          data[i] = Math.sin(i * 0.05) * Math.exp(-i / (audioCtx.sampleRate * 0.1));
-        }
-        newOc.audioBuffer = buffer;
+      // IndexedDBに自動保存
+      try {
+        await dbSaveCharacter(newOc);
+      } catch (err) {
+        console.warn("IndexedDB save warning:", err);
       }
 
       customCharacters.push(newOc);
@@ -1177,11 +1709,40 @@
 
       renderPalette();
       ocModal.classList.remove("open");
+      showToast(`✨ キャラ「${newOc.name}」を登録＆ブラウザ保存しました！`);
     });
 
-    // 初期描画
-    renderStage();
-    renderPalette();
+    // --- アプリ初期化（IndexedDBからキャラ復元） ---
+    async function initApp() {
+      try {
+        const savedOCs = await dbLoadCharacters();
+        if (savedOCs && savedOCs.length > 0) {
+          initAudio();
+          for (const oc of savedOCs) {
+            if (oc.rawAudioBuffer) {
+              try {
+                oc.audioBuffer = await audioCtx.decodeAudioData(oc.rawAudioBuffer.slice(0));
+              } catch (e) {
+                console.warn("Audio decode error for saved OC:", e);
+                oc.audioBuffer = createDefaultSynthBuffer();
+              }
+            } else {
+              oc.audioBuffer = createDefaultSynthBuffer();
+            }
+            customCharacters.push(oc);
+          }
+          allCharacters = [...DEFAULT_CHARACTERS, ...customCharacters];
+        }
+      } catch (err) {
+        console.warn("IndexedDB load error:", err);
+      }
+
+      renderStage();
+      renderPalette();
+    }
+
+    // 初回ロード
+    initApp();
   </script>
 </body>
 </html>
