@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎵 スプランキー・ビートメーカー（Sprunki OC & HORROR） 🎧</title>
+  <title>🎵 スプランキー・ビート2（Sprunki Beat 2 & HORROR） 🎧</title>
   <meta name="description" content="画像と音声を自由にアップロードして自分だけのキャラクター（OC）を作れる！通常モード＆裏ホラーモード搭載の音楽ミキシングゲーム！">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -672,6 +672,7 @@
       transition: all 0.15s ease;
     }
     .char-action-btn:hover { transform: scale(1.2); }
+    .char-action-btn.edit:hover { background: #ffe600; color: #000; }
     .char-action-btn.export:hover { background: var(--accent-cyan); color: #000; }
     .char-action-btn.delete:hover { background: #ff4757; color: #fff; }
 
@@ -808,6 +809,22 @@
       padding: 28px 24px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255, 51, 119, 0.3);
       position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-box::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-box::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+    .modal-box::-webkit-scrollbar-thumb {
+      background: var(--accent-pink);
+      border-radius: 10px;
+    }
+    body.horror-mode .modal-box::-webkit-scrollbar-thumb {
+      background: #ff0033;
     }
     body.horror-mode .modal-box {
       background: #1f0408;
@@ -1062,10 +1079,10 @@
   <!-- トースト通知コンテナ -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- OC作成モーダル -->
+  <!-- OC作成・編集モーダル -->
   <div class="modal-overlay" id="ocModal">
     <div class="modal-box">
-      <h2 class="modal-title">✨ 新しいオリジナルキャラ（OC）を作る</h2>
+      <h2 class="modal-title" id="modalTitle">✨ 新しいオリジナルキャラ（OC）を作る</h2>
 
       <div class="form-group">
         <label class="form-label">キャラクター名</label>
@@ -1075,24 +1092,54 @@
       <div class="form-group">
         <label class="form-label">キャラクター画像（PNG / JPG / GIF）</label>
         <div class="file-drop-area" id="imageDropArea">
-          <span>📁 クリックして画像ファイルを選択</span>
+          <span id="imageDropText">📁 クリックして画像ファイルを選択</span>
           <input type="file" id="imageInput" accept="image/*" style="display: none;">
           <img id="imagePreview" class="preview-box" alt="preview">
         </div>
+        <div id="imageKeepHint" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:none;">※新しい画像をアップロードしない場合は、現在の画像がそのまま保持されます</div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">キャラクター音声（音源ファイル または マイク録音）</label>
+      <!-- 通常モード用の音源 -->
+      <div class="form-group" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px;">
+        <label class="form-label">🔊 通常モードの音声 (必須)</label>
         <div class="file-drop-area" id="audioDropArea">
           <span id="audioStatusText">🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)</span>
           <input type="file" id="audioInput" accept="audio/*" style="display: none;">
         </div>
+        <div id="audioKeepHint" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:none;">※新しい音声をアップロード/録音しない場合は、現在の音声がそのまま保持されます</div>
+        
         <div class="record-box">
           <button type="button" class="rec-btn" id="recBtn">
             <span>🎙️</span>
-            <span id="recBtnText">マイクで自分の声を録音</span>
+            <span id="recBtnText">マイクで声を録音</span>
+          </button>
+          <button type="button" class="rec-btn" id="previewAudioBtn" style="display:none; background:rgba(0,240,255,0.15); border-color:var(--accent-cyan);">
+            <span>▶️</span>
+            <span>試聴</span>
           </button>
           <span id="recStatus" style="font-size: 0.75rem; color: var(--accent-yellow);"></span>
+        </div>
+      </div>
+
+      <!-- ホラーモード用の音源 -->
+      <div class="form-group" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px;">
+        <label class="form-label">🩸 ホラーモードの音声 (任意)</label>
+        <div class="file-drop-area" id="horrorAudioDropArea">
+          <span id="horrorAudioStatusText">🎵 音声ファイルを選択 (MP3/WAV) または録音</span>
+          <input type="file" id="horrorAudioInput" accept="audio/*" style="display: none;">
+        </div>
+        <div id="horrorAudioKeepHint" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:none;">※新しい音声をアップロード/録音しない場合は、現在の音声がそのまま保持されます</div>
+        
+        <div class="record-box">
+          <button type="button" class="rec-btn" id="horrorRecBtn" style="background:#800f2f;">
+            <span>🎙️</span>
+            <span id="horrorRecBtnText">マイクで声を録音</span>
+          </button>
+          <button type="button" class="rec-btn" id="previewHorrorAudioBtn" style="display:none; background:rgba(255,0,51,0.15); border-color:var(--accent-blood);">
+            <span>▶️</span>
+            <span>試聴</span>
+          </button>
+          <span id="horrorRecStatus" style="font-size: 0.75rem; color: var(--accent-yellow);"></span>
         </div>
       </div>
 
@@ -1139,6 +1186,7 @@
           icon: char.icon,
           image: char.image || null,
           rawAudioBuffer: char.rawAudioBuffer || null,
+          rawHorrorAudioBuffer: char.rawHorrorAudioBuffer || null,
           createdAt: char.createdAt || Date.now()
         };
         const req = store.put(record);
@@ -2216,11 +2264,12 @@
         card.dataset.charId = char.id;
 
         let actionButtonsHtml = "";
-        if (!char.isDefault) {
+        if (!char.isDefault || char.id === "pbm70") {
           actionButtonsHtml = `
             <div class="char-card-actions">
+              <button class="char-action-btn edit" title="画像・音声を編集">✏️</button>
               <button class="char-action-btn export" title="ファイルに保存 (.sprunki)">💾</button>
-              <button class="char-action-btn delete" title="キャラを削除">🗑️</button>
+              ${!char.isDefault ? '<button class="char-action-btn delete" title="キャラを削除">🗑️</button>' : ''}
             </div>
           `;
         }
@@ -2250,6 +2299,14 @@
           }
         });
 
+        const editBtn = card.querySelector(".edit");
+        if (editBtn) {
+          editBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openEditModal(char);
+          });
+        }
+
         const exportBtn = card.querySelector(".export");
         if (exportBtn) {
           exportBtn.addEventListener("click", (e) => {
@@ -2278,10 +2335,14 @@
       if (char.rawAudioBuffer) {
         audioBase64 = arrayBufferToBase64(char.rawAudioBuffer);
       }
+      let horrorAudioBase64 = "";
+      if (char.rawHorrorAudioBuffer) {
+        horrorAudioBase64 = arrayBufferToBase64(char.rawHorrorAudioBuffer);
+      }
 
       const exportData = {
         sprunkiOC: true,
-        version: 1,
+        version: 2, // Dual audio support version
         id: char.id,
         name: char.name,
         type: char.type || "OC",
@@ -2289,6 +2350,7 @@
         icon: char.icon,
         image: char.image || null,
         audioBase64: audioBase64,
+        horrorAudioBase64: horrorAudioBase64,
         exportedAt: new Date().toISOString()
       };
 
@@ -2319,6 +2381,8 @@
         initAudio();
         let rawAudioBuffer = null;
         let decodedAudioBuffer = null;
+        let rawHorrorAudioBuffer = null;
+        let decodedHorrorAudioBuffer = null;
 
         if (data.audioBase64) {
           rawAudioBuffer = base64ToArrayBuffer(data.audioBase64);
@@ -2326,6 +2390,15 @@
         } else {
           decodedAudioBuffer = createDefaultSynthBuffer();
           rawAudioBuffer = audioBufferToWavArrayBuffer(decodedAudioBuffer);
+        }
+
+        if (data.horrorAudioBase64) {
+          rawHorrorAudioBuffer = base64ToArrayBuffer(data.horrorAudioBase64);
+          try {
+            decodedHorrorAudioBuffer = await audioCtx.decodeAudioData(rawHorrorAudioBuffer.slice(0));
+          } catch (e) {
+            console.warn("Imported horror audio decode error:", e);
+          }
         }
 
         const newOc = {
@@ -2337,6 +2410,8 @@
           image: data.image || null,
           rawAudioBuffer: rawAudioBuffer,
           audioBuffer: decodedAudioBuffer,
+          rawHorrorAudioBuffer: rawHorrorAudioBuffer,
+          horrorAudioBuffer: decodedHorrorAudioBuffer,
           createdAt: Date.now()
         };
 
@@ -2401,11 +2476,16 @@
               char.playNormal(time, currentBeat);
             }
           } else if (char.audioBuffer) {
-            // カスタムOCの音声（ホラー時は少し低速・ピッチシフト再生）
             const src = audioCtx.createBufferSource();
-            src.buffer = char.audioBuffer;
             if (isHorrorMode) {
-              src.playbackRate.setValueAtTime(0.75, time); // おどろおどろしい低速再生
+              if (char.horrorAudioBuffer) {
+                src.buffer = char.horrorAudioBuffer;
+              } else {
+                src.buffer = char.audioBuffer;
+                src.playbackRate.setValueAtTime(0.75, time); // Fallback: おどろおどろしい低速再生
+              }
+            } else {
+              src.buffer = char.audioBuffer;
             }
             src.connect(audioCtx.destination);
             src.start(time);
@@ -2436,30 +2516,58 @@
       renderStage();
     });
 
-    // --- 自作OC作成モーダル ＆ 録音処理 ---
+    // --- 自作OC作成・編集モーダル ＆ 録音処理 ---
     const ocModal = document.getElementById("ocModal");
     const openModalBtn = document.getElementById("openModalBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
     const saveOcBtn = document.getElementById("saveOcBtn");
+    const modalTitle = document.getElementById("modalTitle");
     const ocNameInput = document.getElementById("ocName");
     const imageDropArea = document.getElementById("imageDropArea");
+    const imageDropText = document.getElementById("imageDropText");
+    const imageKeepHint = document.getElementById("imageKeepHint");
     const imageInput = document.getElementById("imageInput");
     const imagePreview = document.getElementById("imagePreview");
+    
+    // 通常モード音源のDOM
     const audioDropArea = document.getElementById("audioDropArea");
     const audioInput = document.getElementById("audioInput");
     const audioStatusText = document.getElementById("audioStatusText");
+    const audioKeepHint = document.getElementById("audioKeepHint");
+    const previewAudioBtn = document.getElementById("previewAudioBtn");
     const recBtn = document.getElementById("recBtn");
     const recBtnText = document.getElementById("recBtnText");
     const recStatus = document.getElementById("recStatus");
+    
+    // ホラーモード音源のDOM
+    const horrorAudioDropArea = document.getElementById("horrorAudioDropArea");
+    const horrorAudioInput = document.getElementById("horrorAudioInput");
+    const horrorAudioStatusText = document.getElementById("horrorAudioStatusText");
+    const horrorAudioKeepHint = document.getElementById("horrorAudioKeepHint");
+    const previewHorrorAudioBtn = document.getElementById("previewHorrorAudioBtn");
+    const horrorRecBtn = document.getElementById("horrorRecBtn");
+    const horrorRecBtnText = document.getElementById("horrorRecBtnText");
+    const horrorRecStatus = document.getElementById("horrorRecStatus");
+    
     const importOcBtn = document.getElementById("importOcBtn");
     const importFileInput = document.getElementById("importFileInput");
 
+    let currentEditingCharId = null;
     let uploadedImageData = null;
+    
+    // 通常モード音源用状態
     let customAudioBuffer = null;
     let customRawAudioBuffer = null;
     let mediaRecorder = null;
     let audioChunks = [];
     let isRecording = false;
+    
+    // ホラーモード音源用状態
+    let customHorrorAudioBuffer = null;
+    let customHorrorRawAudioBuffer = null;
+    let horrorMediaRecorder = null;
+    let horrorAudioChunks = [];
+    let isHorrorRecording = false;
 
     importOcBtn.addEventListener("click", () => importFileInput.click());
     importFileInput.addEventListener("change", (e) => {
@@ -2482,17 +2590,162 @@
       }
     });
 
+    // 新規作成モーダルオープン
     openModalBtn.addEventListener("click", () => {
-      ocModal.classList.add("open");
+      initAudio();
+      currentEditingCharId = null;
       uploadedImageData = null;
       customAudioBuffer = null;
       customRawAudioBuffer = null;
+      customHorrorAudioBuffer = null;
+      customHorrorRawAudioBuffer = null;
+
+      modalTitle.textContent = "✨ 新しいオリジナルキャラ（OC）を作る";
+      saveOcBtn.textContent = "ブラウザに登録・保存！";
       ocNameInput.value = "";
       imagePreview.style.display = "none";
+      imageDropText.textContent = "📁 クリックして画像ファイルを選択";
+      imageKeepHint.style.display = "none";
+
+      // 通常音源表示初期化
       audioStatusText.textContent = "🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)";
+      audioKeepHint.style.display = "none";
+      previewAudioBtn.style.display = "none";
       recStatus.textContent = "";
+      recBtnText.textContent = "マイクで声を録音";
+
+      // ホラー音源表示初期化
+      horrorAudioStatusText.textContent = "🎵 音声ファイルを選択 (MP3/WAV) または録音";
+      horrorAudioKeepHint.style.display = "none";
+      previewHorrorAudioBtn.style.display = "none";
+      horrorRecStatus.textContent = "";
+      horrorRecBtnText.textContent = "マイクで声を録音";
+
+      ocModal.classList.add("open");
     });
+
+    // 編集モーダルオープン
+    function openEditModal(char) {
+      initAudio();
+      currentEditingCharId = char.id;
+      uploadedImageData = null;
+      customAudioBuffer = null;
+      customRawAudioBuffer = null;
+      customHorrorAudioBuffer = null;
+      customHorrorRawAudioBuffer = null;
+
+      modalTitle.textContent = `✏️ キャラクター「${char.name}」の編集`;
+      saveOcBtn.textContent = "変更を保存（上書き更新）";
+      ocNameInput.value = char.name;
+
+      // 画像プレビューのセット
+      if (char.image) {
+        imagePreview.src = char.image;
+        imagePreview.style.display = "block";
+        imageDropText.textContent = "🔄 新しい画像を選択して上書き";
+        imageKeepHint.style.display = "block";
+      } else {
+        imagePreview.style.display = "none";
+        imageDropText.textContent = "📁 クリックして画像ファイルを選択";
+        imageKeepHint.style.display = "none";
+      }
+
+      // 通常音声状態のセット
+      if (char.audioBuffer || char.rawAudioBuffer || char.playNormal) {
+        audioStatusText.textContent = "✅ 現在の音声が登録されています（上書きする場合のみファイル選択/録音）";
+        audioKeepHint.style.display = "block";
+        previewAudioBtn.style.display = "inline-flex";
+      } else {
+        audioStatusText.textContent = "🎵 クリックして音楽/音声ファイルを選択 (MP3/WAV)";
+        audioKeepHint.style.display = "none";
+        previewAudioBtn.style.display = "none";
+      }
+
+      // ホラー音声状態のセット
+      if (char.horrorAudioBuffer || char.rawHorrorAudioBuffer) {
+        horrorAudioStatusText.textContent = "✅ 現在のホラー音声が登録されています（上書きする場合のみファイル選択/録音）";
+        horrorAudioKeepHint.style.display = "block";
+        previewHorrorAudioBtn.style.display = "inline-flex";
+      } else {
+        horrorAudioStatusText.textContent = "🎵 音声ファイルを選択 (MP3/WAV) または録音";
+        horrorAudioKeepHint.style.display = "none";
+        previewHorrorAudioBtn.style.display = "none";
+      }
+
+      recStatus.textContent = "";
+      recBtnText.textContent = "マイクで声を録音";
+      horrorRecStatus.textContent = "";
+      horrorRecBtnText.textContent = "マイクで声を録音";
+      ocModal.classList.add("open");
+    }
+
     closeModalBtn.addEventListener("click", () => ocModal.classList.remove("open"));
+
+    // 音声試聴ボタン (通常)
+    previewAudioBtn.addEventListener("click", () => {
+      initAudio();
+      const time = audioCtx.currentTime;
+      if (customAudioBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = customAudioBuffer;
+        src.connect(audioCtx.destination);
+        src.start(time);
+        showToast("🔊 新しく選択した通常音声をテスト再生中...");
+      } else if (currentEditingCharId) {
+        const targetChar = allCharacters.find(c => c.id === currentEditingCharId);
+        if (targetChar) {
+          if (targetChar.audioBuffer) {
+            const src = audioCtx.createBufferSource();
+            src.buffer = targetChar.audioBuffer;
+            src.connect(audioCtx.destination);
+            src.start(time);
+            showToast(`🔊 「${targetChar.name}」の通常音声をテスト再生中...`);
+          } else if (targetChar.playNormal) {
+            targetChar.playNormal(time, 0);
+            showToast(`🔊 「${targetChar.name}」のプリセット音声をテスト再生中...`);
+          }
+        }
+      }
+    });
+
+    // 音声試聴ボタン (ホラー)
+    previewHorrorAudioBtn.addEventListener("click", () => {
+      initAudio();
+      const time = audioCtx.currentTime;
+      if (customHorrorAudioBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = customHorrorAudioBuffer;
+        src.connect(audioCtx.destination);
+        src.start(time);
+        showToast("🔊 新しく選択したホラー音声をテスト再生中...");
+      } else if (currentEditingCharId) {
+        const targetChar = allCharacters.find(c => c.id === currentEditingCharId);
+        if (targetChar) {
+          if (targetChar.horrorAudioBuffer) {
+            const src = audioCtx.createBufferSource();
+            src.buffer = targetChar.horrorAudioBuffer;
+            src.connect(audioCtx.destination);
+            src.start(time);
+            showToast(`🔊 「${targetChar.name}」のホラー音声をテスト再生中...`);
+          } else {
+            // Fallback preview: 通常音源を低速化
+            const src = audioCtx.createBufferSource();
+            src.buffer = targetChar.audioBuffer || customAudioBuffer || createDefaultSynthBuffer();
+            src.playbackRate.setValueAtTime(0.75, time);
+            src.connect(audioCtx.destination);
+            src.start(time);
+            showToast(`🔊 「${targetChar.name}」の通常音源をホラー変換してテスト再生中...`);
+          }
+        }
+      } else if (customAudioBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = customAudioBuffer;
+        src.playbackRate.setValueAtTime(0.75, time);
+        src.connect(audioCtx.destination);
+        src.start(time);
+        showToast("🔊 通常音声をホラー風にアレンジしてテスト再生中...");
+      }
+    });
 
     imageDropArea.addEventListener("click", () => imageInput.click());
     imageInput.addEventListener("change", (e) => {
@@ -2503,6 +2756,8 @@
           uploadedImageData = event.target.result;
           imagePreview.src = uploadedImageData;
           imagePreview.style.display = "block";
+          imageDropText.textContent = `✅ 新しい画像を選択: ${file.name}`;
+          showToast(`🖼️ 新しい画像「${file.name}」をセットしました`);
         };
         reader.readAsDataURL(file);
       }
@@ -2515,10 +2770,26 @@
         initAudio();
         customRawAudioBuffer = await file.arrayBuffer();
         customAudioBuffer = await audioCtx.decodeAudioData(customRawAudioBuffer.slice(0));
-        audioStatusText.textContent = `✅ 音声読み込み完了: ${file.name}`;
+        audioStatusText.textContent = `✅ 新しい音声ファイルをセット: ${file.name}`;
+        previewAudioBtn.style.display = "inline-flex";
+        showToast(`🎵 新しい通常音声「${file.name}」をセットしました`);
       }
     });
 
+    horrorAudioDropArea.addEventListener("click", () => horrorAudioInput.click());
+    horrorAudioInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        initAudio();
+        customHorrorRawAudioBuffer = await file.arrayBuffer();
+        customHorrorAudioBuffer = await audioCtx.decodeAudioData(customHorrorRawAudioBuffer.slice(0));
+        horrorAudioStatusText.textContent = `✅ 新しいホラー音源ファイルをセット: ${file.name}`;
+        previewHorrorAudioBtn.style.display = "inline-flex";
+        showToast(`🎵 新しいホラー音声「${file.name}」をセットしました`);
+      }
+    });
+
+    // 通常録音処理
     recBtn.addEventListener("click", async () => {
       initAudio();
       if (!isRecording) {
@@ -2534,6 +2805,8 @@
             customAudioBuffer = await audioCtx.decodeAudioData(customRawAudioBuffer.slice(0));
             recStatus.textContent = "🎉 録音完了！";
             audioStatusText.textContent = "✅ マイク録音の音声をセットしました";
+            previewAudioBtn.style.display = "inline-flex";
+            showToast("🎙️ 通常音声をセットしました");
           };
 
           mediaRecorder.start();
@@ -2548,7 +2821,43 @@
         mediaRecorder.stop();
         isRecording = false;
         recBtn.classList.remove("recording");
-        recBtnText.textContent = "🎙️ もう一度録音する";
+        recBtnText.textContent = "🎙️ 声を録音";
+      }
+    });
+
+    // ホラー録音処理
+    horrorRecBtn.addEventListener("click", async () => {
+      initAudio();
+      if (!isHorrorRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          horrorMediaRecorder = new MediaRecorder(stream);
+          horrorAudioChunks = [];
+
+          horrorMediaRecorder.ondataavailable = (e) => horrorAudioChunks.push(e.data);
+          horrorMediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(horrorAudioChunks, { type: "audio/wav" });
+            customHorrorRawAudioBuffer = await audioBlob.arrayBuffer();
+            customHorrorAudioBuffer = await audioCtx.decodeAudioData(customHorrorRawAudioBuffer.slice(0));
+            horrorRecStatus.textContent = "🎉 録音完了！";
+            horrorAudioStatusText.textContent = "✅ マイク録音の音声をセットしました";
+            previewHorrorAudioBtn.style.display = "inline-flex";
+            showToast("🎙️ ホラー音声をセットしました");
+          };
+
+          horrorMediaRecorder.start();
+          isHorrorRecording = true;
+          horrorRecBtn.classList.add("recording");
+          horrorRecBtnText.textContent = "■ 録音停止";
+          horrorRecStatus.textContent = "録音中...";
+        } catch (err) {
+          alert("マイクへのアクセスが許可されていません。");
+        }
+      } else {
+        horrorMediaRecorder.stop();
+        isHorrorRecording = false;
+        horrorRecBtn.classList.remove("recording");
+        horrorRecBtnText.textContent = "🎙️ 声を録音";
       }
     });
 
@@ -2556,6 +2865,55 @@
       initAudio();
       const name = ocNameInput.value.trim() || "マイキャラ";
 
+      if (currentEditingCharId) {
+        // --- 既存キャラクターの編集（上書き更新） ---
+        const targetChar = allCharacters.find(c => c.id === currentEditingCharId);
+        if (targetChar) {
+          targetChar.name = name;
+
+          // 画像：新しくアップロードされた場合のみ上書き
+          if (uploadedImageData !== null) {
+            targetChar.image = uploadedImageData;
+          }
+
+          // 音声：新しくアップロード/録音された場合のみ上書き
+          if (customAudioBuffer !== null) {
+            targetChar.audioBuffer = customAudioBuffer;
+            targetChar.rawAudioBuffer = customRawAudioBuffer;
+            // プリセット音声を無効化して自作音声を優先
+            targetChar.playNormal = null;
+            targetChar.playHorror = null;
+          }
+
+          // ホラー音声：新しくアップロード/録音された場合のみ上書き
+          if (customHorrorAudioBuffer !== null) {
+            targetChar.horrorAudioBuffer = customHorrorAudioBuffer;
+            targetChar.rawHorrorAudioBuffer = customHorrorRawAudioBuffer;
+            targetChar.playHorror = null;
+          }
+
+          try {
+            await dbSaveCharacter(targetChar);
+          } catch (err) {
+            console.warn("IndexedDB save warning:", err);
+          }
+
+          // ステージ上のスロットもリアルタイム更新
+          slotStates.forEach(slot => {
+            if (slot.character && slot.character.id === targetChar.id) {
+              slot.character = targetChar;
+            }
+          });
+
+          renderStage();
+          renderPalette();
+          ocModal.classList.remove("open");
+          showToast(`✨ キャラクター「${targetChar.name}」の情報を上書き更新しました！`);
+          return;
+        }
+      }
+
+      // --- 新規キャラクターの作成 ---
       if (!customAudioBuffer) {
         customAudioBuffer = createDefaultSynthBuffer();
         customRawAudioBuffer = audioBufferToWavArrayBuffer(customAudioBuffer);
@@ -2571,6 +2929,8 @@
         image: uploadedImageData,
         rawAudioBuffer: customRawAudioBuffer,
         audioBuffer: customAudioBuffer,
+        rawHorrorAudioBuffer: customHorrorRawAudioBuffer, // ホラー音源を格納（任意）
+        horrorAudioBuffer: customHorrorAudioBuffer,
         createdAt: Date.now()
       };
 
@@ -2604,6 +2964,16 @@
               }
             } else {
               oc.audioBuffer = createDefaultSynthBuffer();
+            }
+            if (oc.rawHorrorAudioBuffer) {
+              try {
+                oc.horrorAudioBuffer = await audioCtx.decodeAudioData(oc.rawHorrorAudioBuffer.slice(0));
+              } catch (e) {
+                console.warn("Horror audio decode error for saved OC:", e);
+                oc.horrorAudioBuffer = null;
+              }
+            } else {
+              oc.horrorAudioBuffer = null;
             }
             customCharacters.push(oc);
           }
