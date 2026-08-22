@@ -137,6 +137,22 @@
       box-shadow: 0 16px 35px rgba(147, 51, 234, 0.3);
     }
 
+    .game-card-sandbox {
+      border-color: #fef08a;
+    }
+    .game-card-sandbox:hover {
+      border-color: #eab308;
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 16px 35px rgba(234, 179, 8, 0.3);
+    }
+    .game-card-sandbox .game-icon-box {
+      background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    }
+    .game-card-sandbox .play-btn {
+      background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+      color: #fff;
+      box-shadow: 0 6px 15px rgba(234, 179, 8, 0.3);
+    }
 
     .new-tag {
       position: absolute;
@@ -291,6 +307,18 @@
         <p class="game-desc">画像や音声（通常＆ホラー）を自由にアップロードして自分だけのOCを作れる！裏ホラーモード搭載の音楽ミキシングゲーム🎵</p>
         <div class="play-btn">
           <span>演奏する</span>
+          <span>➔</span>
+        </div>
+      </a>
+
+      <!-- スプランキー・ビート (サンドボックス) カード -->
+      <a href="sprunki_sandbox.html" class="game-card game-card-sandbox">
+        <div class="new-tag" style="background: linear-gradient(135deg, #ca8a04 0%, #eab308 100%); box-shadow: 0 4px 10px rgba(234,179,8,0.3);">検証用 🧪</div>
+        <div class="game-icon-box">🧪</div>
+        <h2 class="game-title">SB：スプランキー</h2>
+        <p class="game-desc">いろいろな新施策やアレンジパターンを自由に試せる検証用サンドボックス環境です🎵</p>
+        <div class="play-btn">
+          <span>実験を始める</span>
           <span>➔</span>
         </div>
       </a>
