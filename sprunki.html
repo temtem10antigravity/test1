@@ -346,23 +346,14 @@
     .stage-characters-grid {
       position: relative;
       z-index: 10;
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
+      width: 95%;
+      max-width: 680px; /* Fixed maximum width to keep characters in a tight group */
+      margin: 0 auto; /* Centered on the stage */
+      display: flex;
+      justify-content: center;
       padding: 0 12px 14px;
       align-items: flex-end;
-    }
-
-    @media (max-width: 860px) {
-      .stage-characters-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-    @media (max-width: 520px) {
-      .stage-characters-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
+      box-sizing: border-box;
     }
 
     /* 個別キャラクタースロット */
@@ -376,9 +367,35 @@
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 20px;
+      flex: 0 0 14.28%; /* Exactly 1/7 of grid width */
+      max-width: 14.28%;
+      box-sizing: border-box;
     }
+
+    @media (max-width: 860px) {
+      .char-stand-slot {
+        height: 210px;
+      }
+    }
+    @media (max-width: 520px) {
+      .char-stand-slot {
+        height: 170px;
+      }
+    }
+
+    /* キャラクター同士の重なり（右のキャラが前に重なる） */
+    .char-stand-slot:nth-child(1) { z-index: 11; }
+    .char-stand-slot:nth-child(2) { z-index: 12; }
+    .char-stand-slot:nth-child(3) { z-index: 13; }
+    .char-stand-slot:nth-child(4) { z-index: 14; }
+    .char-stand-slot:nth-child(5) { z-index: 15; }
+    .char-stand-slot:nth-child(6) { z-index: 16; }
+    .char-stand-slot:nth-child(7) { z-index: 17; }
+
     .char-stand-slot:hover {
       background: rgba(255, 255, 255, 0.04);
+      z-index: 30 !important;
+      transform: scale(1.05) translateY(-6px);
     }
     body.horror-mode .char-stand-slot:hover {
       background: rgba(255, 0, 51, 0.08);
@@ -387,7 +404,8 @@
     .char-stand-slot.drag-over {
       background: rgba(0, 240, 255, 0.15);
       box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
-      transform: scale(1.04);
+      transform: scale(1.06);
+      z-index: 35 !important;
     }
     body.horror-mode .char-stand-slot.drag-over {
       background: rgba(255, 0, 51, 0.25);
@@ -459,7 +477,7 @@
        =================================================== */
     .sprunki-sprite-box {
       width: 100%;
-      height: 220px;
+      height: 235px; /* Adjusted to fit the SVG ratio on desktop */
       display: flex;
       align-items: flex-end;
       justify-content: center;
@@ -467,17 +485,27 @@
     }
 
     .sprunki-svg-character, .sprunki-img-character {
-      width: 100%;
-      max-width: 125px;
-      height: 215px;
+      width: 132%; /* Exceeds slot width by 32% to force overlapping */
+      height: auto;
+      aspect-ratio: 120 / 220; /* Maintain original proportions */
       transform-origin: bottom center;
       transition: transform 0.1s ease;
       filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
     }
     .sprunki-img-character {
       object-fit: contain;
-      width: auto;
-      max-width: 135px;
+    }
+
+    @media (max-width: 860px) {
+      .sprunki-sprite-box {
+        height: 175px !important;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .sprunki-sprite-box {
+        height: 135px !important;
+      }
     }
 
     .bouncing .sprunki-svg-character, .bouncing .sprunki-img-character {
@@ -509,14 +537,15 @@
     }
 
     .custom-oc-avatar-frame {
-      width: 72px;
-      height: 72px;
-      border-radius: 20px;
+      width: 74%; /* Relative to slot width */
+      height: auto;
+      aspect-ratio: 1 / 1;
+      border-radius: 20%;
       border: 3px solid #fff;
       box-shadow: 0 8px 20px rgba(0,0,0,0.5);
       object-fit: cover;
       position: absolute;
-      top: 15px;
+      top: 13%;
       z-index: 5;
     }
     body.horror-mode .custom-oc-avatar-frame {
