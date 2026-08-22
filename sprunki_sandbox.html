@@ -347,22 +347,11 @@
       position: relative;
       z-index: 10;
       width: 100%;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
+      display: flex;
+      justify-content: center;
       padding: 0 12px 14px;
       align-items: flex-end;
-    }
-
-    @media (max-width: 860px) {
-      .stage-characters-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-    @media (max-width: 520px) {
-      .stage-characters-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
+      box-sizing: border-box;
     }
 
     /* 個別キャラクタースロット */
@@ -376,9 +365,37 @@
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 20px;
+      flex: 1;
+      margin-left: -24px;
+      margin-right: -24px;
     }
+
+    @media (max-width: 860px) {
+      .char-stand-slot {
+        margin-left: -16px;
+        margin-right: -16px;
+      }
+    }
+    @media (max-width: 520px) {
+      .char-stand-slot {
+        margin-left: -10px;
+        margin-right: -10px;
+      }
+    }
+
+    /* キャラクター同士の重なり（右のキャラが前に重なる） */
+    .char-stand-slot:nth-child(1) { z-index: 11; }
+    .char-stand-slot:nth-child(2) { z-index: 12; }
+    .char-stand-slot:nth-child(3) { z-index: 13; }
+    .char-stand-slot:nth-child(4) { z-index: 14; }
+    .char-stand-slot:nth-child(5) { z-index: 15; }
+    .char-stand-slot:nth-child(6) { z-index: 16; }
+    .char-stand-slot:nth-child(7) { z-index: 17; }
+
     .char-stand-slot:hover {
       background: rgba(255, 255, 255, 0.04);
+      z-index: 30 !important;
+      transform: scale(1.05) translateY(-6px);
     }
     body.horror-mode .char-stand-slot:hover {
       background: rgba(255, 0, 51, 0.08);
@@ -387,7 +404,8 @@
     .char-stand-slot.drag-over {
       background: rgba(0, 240, 255, 0.15);
       box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
-      transform: scale(1.04);
+      transform: scale(1.06);
+      z-index: 35 !important;
     }
     body.horror-mode .char-stand-slot.drag-over {
       background: rgba(255, 0, 51, 0.25);
