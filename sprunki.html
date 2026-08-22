@@ -963,12 +963,33 @@
       from { opacity: 1; transform: translateY(0) scale(1); }
       to { opacity: 0; transform: translateY(-10px) scale(0.95); }
     }
+
+    .page-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin: 16px 0 10px;
+      text-align: center;
+      color: #fff;
+      font-family: 'Fredoka', 'Zen Maru Gothic', sans-serif;
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.4), 0 0 24px rgba(255, 51, 119, 0.2);
+      letter-spacing: 0.05em;
+      transition: all 0.5s ease;
+    }
+    body.horror-mode .page-title {
+      font-family: 'Creepster', cursive;
+      font-size: 2.6rem;
+      color: var(--accent-blood);
+      text-shadow: 0 0 15px rgba(255, 0, 51, 0.8), 0 0 30px rgba(0, 0, 0, 0.9);
+      letter-spacing: 0.1em;
+    }
   </style>
 </head>
 <body>
 
   <!-- ホラー画面フラッシュ用オーバーレイ -->
   <div class="screen-flash-overlay" id="flashOverlay"></div>
+
+  <h1 class="page-title" id="mainPageTitle">🎵 スプランキー・ビート 🎧</h1>
 
   <header>
     <a href="index.html" class="nav-btn">🏠 ホームへ戻る</a>
@@ -2132,6 +2153,7 @@
 
       if (isHorrorMode) {
         document.body.classList.add("horror-mode");
+        document.getElementById("mainPageTitle").textContent = "💀 恐怖のビートメーカー 💀";
         modeIcon.textContent = "🌈";
         modeText.textContent = "通常モードに戻る";
         paletteTitleText.textContent = "🩸 狂気のステージにキャラクターを立たせよう...";
@@ -2139,6 +2161,7 @@
         showToast("💀 ホラーモード起動... 裏世界へようこそ");
       } else {
         document.body.classList.remove("horror-mode");
+        document.getElementById("mainPageTitle").textContent = "🎵 スプランキー・ビート 🎧";
         modeIcon.textContent = "👁️";
         modeText.textContent = "ホラーモードへ変身";
         paletteTitleText.textContent = "🎨 キャラクターを選んでステージに立たせよう！";
